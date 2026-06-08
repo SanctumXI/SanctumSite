@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
+  <title>Sanctum Wiki</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0f1419;
+      --panel: #1a2332;
+      --text: #e8eef7;
+      --muted: #8fa3bf;
+      --accent: #6eb5ff;
+      --border: #2a3a52;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      background: linear-gradient(180deg, #101722 0%, var(--bg) 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(15, 20, 25, 0.92);
+      backdrop-filter: blur(8px);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .header-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      max-width: min(1600px, 100%);
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.35rem;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    h1 a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    form {
+      display: flex;
+      gap: 0.5rem;
+      flex: 1;
+    }
+
+    input[type="search"] {
+      flex: 1;
+      padding: 0.65rem 0.9rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    button {
+      padding: 0.65rem 1rem;
+      border-radius: 8px;
+      border: 0;
+      background: var(--accent);
+      color: #081018;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    main {
+      width: 100%;
+      max-width: min(1600px, 100%);
+      margin: 0 auto;
+      padding: 1.5rem clamp(1rem, 3vw, 1.5rem) 4rem;
+    }
+
+    .muted { color: var(--muted); }
+
+    .results, .article-shell {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .result-item {
+      display: block;
+      padding: 0.85rem 1.1rem;
+      border-bottom: 1px solid var(--border);
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .result-item:last-child { border-bottom: 0; }
+    .result-item:hover { background: rgba(110, 181, 255, 0.06); }
+
+    .result-title {
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+    }
+
+    .source-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .source-tag {
+      font-size: 0.78rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .article-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.85rem 1.1rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(0, 0, 0, 0.15);
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 720px) {
+      .header-row {
+        flex-wrap: wrap;
+      }
+
+      h1 {
+        white-space: normal;
+      }
+
+      .article-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .article-actions {
+        width: 100%;
+      }
+    }
+
+    .article-header h2 {
+      margin: 0;
+      font-size: 1.35rem;
+    }
+
+    .article-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .wiki-content.editing {
+      outline: 2px solid var(--accent);
+      outline-offset: 4px;
+      border-radius: 8px;
+      min-height: 240px;
+    }
+
+    .edit-bar {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.75rem 1.1rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(110, 181, 255, 0.08);
+    }
+
+    .source-tabs {
+      display: flex;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+    }
+
+    .source-tab {
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .source-tab.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #081018;
+    }
+
+    .wiki-content {
+      padding: 1.25rem 1.1rem 1.5rem;
+      line-height: 1.55;
+      color: var(--text);
+      overflow-x: auto;
+      max-width: 100%;
+      min-width: 0;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .wiki-content .mw-parser-output {
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    .wiki-content div[style*="display:flex"],
+    .wiki-content div[style*="display: flex"] {
+      flex-wrap: wrap !important;
+      max-width: 100% !important;
+    }
+
+    .wiki-content figure {
+      max-width: 100%;
+    }
+
+    .wiki-content table {
+      background: transparent;
+      border-collapse: collapse;
+    }
+
+    .wiki-content table.wikitable {
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .wiki-content table.wikitable :is(th, td) {
+      color: var(--text);
+    }
+
+    /* Stack BG Wiki's side-by-side spell columns on narrower viewports */
+    .wiki-content table:has(> tbody > tr > td > table.wikitable) {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    .wiki-content table:has(> tbody > tr > td > table.wikitable) > tbody > tr:has(> td > table.wikitable) {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .wiki-content table:has(> tbody > tr > td > table.wikitable) > tbody > tr:has(> td > table.wikitable) > td {
+      display: block;
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    .wiki-content table:has(> tbody > tr > td > table.wikitable) > tbody > tr > td > table {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    @media (min-width: 1100px) {
+      .wiki-content table:has(> tbody > tr > td > table.wikitable) > tbody > tr:has(> td > table.wikitable) {
+        flex-direction: row;
+        align-items: flex-start;
+      }
+
+      .wiki-content table:has(> tbody > tr > td > table.wikitable) > tbody > tr:has(> td > table.wikitable) > td {
+        flex: 1 1 0;
+        min-width: 0;
+      }
+    }
+
+    .wiki-content .toc,
+    .wiki-content .toctitle {
+      background: rgba(15, 20, 25, 0.6);
+      border-color: var(--border);
+      color: var(--text);
+    }
+
+    .wiki-content :is(h1, h2, h3, h4) {
+      margin-top: 1.4rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .wiki-content img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .wiki-content :is(th, td) {
+      border: 1px solid var(--border);
+      padding: 0.35rem 0.5rem;
+    }
+
+    .wiki-content a {
+      color: var(--accent);
+    }
+
+    .attribution {
+      padding: 0.75rem 1.1rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.82rem;
+    }
+
+    .attribution a { color: var(--muted); }
+
+    .loading {
+      padding: 2rem 1rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-row">
+      <h1><a href="/" id="home-link">Sanctum Wiki</a></h1>
+      <form id="search-form">
+        <input id="search-input" type="search" placeholder="Search FFXI topics..." />
+        <button type="submit">Search</button>
+      </form>
+    </div>
+  </header>
+
+  <main>
+    <p class="muted" id="status">Search BG Wiki, FFXIclopedia, and Sanctum's wiki.</p>
+    <div id="content"></div>
+  </main>
+
+  <script>
+    const content = document.getElementById('content');
+    const status = document.getElementById('status');
+    const form = document.getElementById('search-form');
+    const input = document.getElementById('search-input');
+
+    function pageParams(title, source) {
+      const params = new URLSearchParams({ title });
+      if (source) params.set('source', source);
+      return params;
+    }
+
+    function navigateTo(params, replace = false) {
+      const url = `/?${params.toString()}`;
+      if (replace) {
+        history.replaceState(null, '', url);
+      } else {
+        history.pushState(null, '', url);
+      }
+      boot();
+    }
+
+    async function fetchJson(url, options) {
+      const response = await fetch(url, options);
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error ?? 'Request failed');
+      return data;
+    }
+
+    function preferredSource(sources) {
+      return sources.find((entry) => entry.source === 'bgwiki')?.source
+        ?? sources.find((entry) => entry.source === 'ffxiclopedia')?.source
+        ?? sources[0]?.source;
+    }
+
+    function sanctumActionButton(page) {
+      if (page.source === 'sanctum') {
+        return '';
+      }
+
+      if (page.canCreateSanctum) {
+        return '<button class="btn-secondary" id="sanctum-action" type="button">Create Sanctum Entry</button>';
+      }
+
+      if (page.hasSanctumEntry) {
+        return '<button class="btn-secondary" id="sanctum-action" type="button">Sanctum</button>';
+      }
+
+      return '';
+    }
+
+    function renderResults(data) {
+      if (!data.results.length) {
+        content.innerHTML = '<div class="results"><p class="loading">No pages found.</p></div>';
+        return;
+      }
+
+      content.innerHTML = `
+        <div class="results">
+          ${data.results.map((entry) => `
+            <a class="result-item" href="/?title=${encodeURIComponent(entry.title)}&source=${encodeURIComponent(preferredSource(entry.sources))}">
+              <div class="result-title">${entry.title}</div>
+              <div class="source-tags">
+                ${entry.sources.map((source) => `<span class="source-tag">${source.sourceName}</span>`).join('')}
+              </div>
+            </a>
+          `).join('')}
+        </div>
+      `;
+
+      content.querySelectorAll('.result-item').forEach((link) => {
+        link.addEventListener('click', (event) => {
+          event.preventDefault();
+          const params = new URLSearchParams(link.getAttribute('href').slice(2));
+          navigateTo(params);
+        });
+      });
+    }
+
+    function renderPage(page, editMode = false) {
+      const params = new URLSearchParams(window.location.search);
+      const editing = editMode || params.get('edit') === '1';
+
+      const tabs = (page.externalSources ?? [])
+        .map((entry) => `
+          <button
+            class="source-tab ${entry.source === page.source ? 'active' : ''}"
+            data-source="${entry.source}"
+            type="button"
+          >${entry.sourceName}</button>
+        `).join('');
+
+      const sanctumButton = sanctumActionButton(page);
+
+      const editButton = page.source === 'sanctum' && page.editable && !editing
+        ? '<button class="btn-secondary" id="edit-sanctum" type="button">Edit</button>'
+        : '';
+
+      const sanctumIndicator = page.source === 'sanctum'
+        ? '<span class="source-tab active" aria-current="page">Sanctum</span>'
+        : '';
+
+      const editBar = editing
+        ? `<div class="edit-bar">
+            <button id="save-sanctum" type="button">Save</button>
+            <button class="btn-secondary" id="cancel-edit" type="button">Cancel</button>
+          </div>`
+        : '';
+
+      content.innerHTML = `
+        <div class="article-shell">
+          <div class="article-header">
+            <h2>${page.title}</h2>
+            <div class="article-actions">
+              ${sanctumButton}
+              ${editButton}
+              <div class="source-tabs">${tabs}${sanctumIndicator}</div>
+            </div>
+          </div>
+          ${editBar}
+          <div class="wiki-content ${editing ? 'editing' : ''}" ${editing ? 'contenteditable="true"' : ''}>${page.contentHtml}</div>
+          <div class="attribution muted">
+            ${page.source === 'sanctum'
+              ? `Sanctum Wiki${page.clonedFrom ? ` · Cloned from <a href="${page.clonedFrom.url}" target="_blank" rel="noopener noreferrer">BG Wiki</a>` : ''}`
+              : `Via <a href="${page.url}" target="_blank" rel="noopener noreferrer">${page.sourceName}</a> · ${page.attribution}`}
+          </div>
+        </div>
+      `;
+
+      content.querySelectorAll('button.source-tab').forEach((tab) => {
+        tab.addEventListener('click', () => {
+          if (tab.classList.contains('active')) return;
+          navigateTo(pageParams(page.title, tab.dataset.source));
+        });
+      });
+
+      const wikiContent = content.querySelector('.wiki-content');
+      if (!editing) {
+        wikiContent.addEventListener('click', (event) => {
+          const link = event.target.closest('a[href]');
+          if (!link) return;
+
+          const href = link.getAttribute('href');
+          if (!href || !href.startsWith('/?title=')) return;
+
+          event.preventDefault();
+          navigateTo(new URLSearchParams(href.slice(2)));
+        });
+      }
+
+      const sanctumBtn = content.querySelector('#sanctum-action');
+      if (sanctumBtn) {
+        sanctumBtn.addEventListener('click', async () => {
+          if (page.hasSanctumEntry) {
+            navigateTo(pageParams(page.title, 'sanctum'));
+            return;
+          }
+
+          sanctumBtn.disabled = true;
+          sanctumBtn.textContent = 'Creating...';
+          try {
+            const result = await fetchJson('/api/wiki/sanctum', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ title: page.title }),
+            });
+            history.replaceState(null, '', `/?title=${encodeURIComponent(result.page.title)}&source=sanctum&edit=1`);
+            status.textContent = result.page.title;
+            renderPage(result.page, true);
+          } catch (error) {
+            alert(error.message ?? 'Could not create Sanctum entry.');
+            sanctumBtn.disabled = false;
+            sanctumBtn.textContent = 'Create Sanctum Entry';
+          }
+        });
+      }
+
+      const editBtn = content.querySelector('#edit-sanctum');
+      if (editBtn) {
+        editBtn.addEventListener('click', () => {
+          history.replaceState(null, '', `/?title=${encodeURIComponent(page.title)}&source=sanctum&edit=1`);
+          renderPage(page, true);
+        });
+      }
+
+      const saveBtn = content.querySelector('#save-sanctum');
+      if (saveBtn) {
+        saveBtn.addEventListener('click', async () => {
+          saveBtn.disabled = true;
+          saveBtn.textContent = 'Saving...';
+          try {
+            const saved = await fetchJson(`/api/wiki/sanctum/${encodeURIComponent(page.slug)}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ contentHtml: wikiContent.innerHTML }),
+            });
+            history.replaceState(null, '', `/?title=${encodeURIComponent(saved.title)}&source=sanctum`);
+            status.textContent = saved.title;
+            renderPage(saved, false);
+          } catch (error) {
+            alert(error.message ?? 'Save failed.');
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Save';
+          }
+        });
+      }
+
+      const cancelBtn = content.querySelector('#cancel-edit');
+      if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+          history.replaceState(null, '', `/?title=${encodeURIComponent(page.title)}&source=sanctum`);
+          boot();
+        });
+      }
+    }
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const q = input.value.trim();
+      if (!q) return;
+      navigateTo(new URLSearchParams({ q }));
+    });
+
+    async function boot() {
+      const params = new URLSearchParams(window.location.search);
+      const title = params.get('title');
+      const source = params.get('source') ?? 'bgwiki';
+      const q = params.get('q');
+
+      if (title) {
+        status.textContent = 'Loading...';
+        content.innerHTML = '<div class="article-shell"><p class="loading">Loading article...</p></div>';
+        input.value = title;
+
+        try {
+          const page = await fetchJson(`/api/wiki/page?title=${encodeURIComponent(title)}&source=${encodeURIComponent(source)}`);
+          status.textContent = page.title;
+          renderPage(page);
+        } catch {
+          status.textContent = 'Page not found.';
+          content.innerHTML = '<div class="results"><p class="loading">That page could not be loaded.</p></div>';
+        }
+        return;
+      }
+
+      if (q) {
+        status.textContent = 'Searching...';
+        content.innerHTML = '<div class="results"><p class="loading">Searching...</p></div>';
+        input.value = q;
+
+        try {
+          const data = await fetchJson(`/api/wiki/search?q=${encodeURIComponent(q)}`);
+          status.textContent = `Results for "${q}"`;
+          renderResults(data);
+        } catch {
+          status.textContent = 'Search failed.';
+        }
+        return;
+      }
+
+      status.textContent = 'Search BG Wiki, FFXIclopedia, and Sanctum\'s wiki.';
+      content.innerHTML = '';
+      input.value = '';
+    }
+
+    window.addEventListener('popstate', boot);
+    boot();
+  </script>
+</body>
+</html>

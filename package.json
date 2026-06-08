@@ -1,0 +1,19 @@
+{
+  "name": "sanctum-site",
+  "version": "0.1.0",
+  "description": "Private FFXI server website with external MariaDB and live wiki aggregation",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mariadb": "^3.4.0"
+  }
+}
