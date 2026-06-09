@@ -1,4 +1,5 @@
 import './load-env.js';
+import { ensureRuntimeDirs, validateStartup } from './startup-check.js';
 import express from 'express';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -17,6 +18,9 @@ import { optionalAuthenticate } from './middleware/authenticate.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const publicDir = path.join(__dirname, '..', 'public');
 const indexHtml = path.join(publicDir, 'index.html');
+
+ensureRuntimeDirs();
+validateStartup();
 
 const app = express();
 const port = Number(process.env.PORT ?? 3000);
@@ -50,7 +54,7 @@ app.use((error, _req, res, _next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
-app.listen(port, host, () => {
+const server = app.listen(port, host, () => {
   console.log(`Sanctum site listening on http://${host}:${port}`);
   console.log(`Serving static files from ${publicDir}`);
 
@@ -86,4 +90,13 @@ app.listen(port, host, () => {
     .catch((error) => {
       console.error('Discord login: could not reach Discord API to verify credentials', error);
     });
+});
+
+server.on('error', (error) => {
+  if (error.code === 'EADDRINUSE') {
+    console.error(`Port ${port} is already in use. Stop the other process or change PORT in .env`);
+  } else {
+    console.error('Server failed to start:', error);
+  }
+  process.exit(1);
 });

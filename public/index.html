@@ -868,8 +868,6 @@
     }
 
     function renderProfileMenu() {
-      const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
-
       if (authState.loading) {
         profileMenu.innerHTML = `
           <div class="profile-menu-header">
@@ -907,7 +905,7 @@
             <div class="profile-menu-name">Not signed in</div>
             <div class="profile-menu-meta">Use Discord to sign in</div>
           </div>
-          <a class="profile-menu-item discord" data-action="login" href="/auth/discord?returnTo=${returnTo}">Sign in with Discord</a>
+          <a class="profile-menu-item discord" data-action="login" href="/auth/discord?returnTo=${encodeURIComponent('/?view=profile')}">Sign in with Discord</a>
         `;
         return;
       }

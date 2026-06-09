@@ -30,7 +30,7 @@ router.get('/discord', (req, res) => {
 
   const state = createOAuthState();
   req.session.oauthState = state;
-  req.session.returnTo = typeof req.query.returnTo === 'string' ? req.query.returnTo : '/';
+  req.session.returnTo = typeof req.query.returnTo === 'string' ? req.query.returnTo : '/?view=profile';
 
   req.session.save((error) => {
     if (error) {
