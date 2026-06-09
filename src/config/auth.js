@@ -1,0 +1,29 @@
+export function getAppUrl() {
+  return (process.env.APP_URL ?? 'http://localhost:3000').replace(/\/$/, '');
+}
+
+export function getDiscordConfig() {
+  const clientId = process.env.DISCORD_CLIENT_ID?.trim();
+  const clientSecret = process.env.DISCORD_CLIENT_SECRET?.trim();
+  const redirectUri = (process.env.DISCORD_REDIRECT_URI ?? `${getAppUrl()}/auth/discord/callback`).trim();
+
+  return {
+    clientId,
+    clientSecret,
+    redirectUri,
+    scopes: ['identify'],
+  };
+}
+
+export function isDiscordAuthConfigured() {
+  const { clientId, clientSecret } = getDiscordConfig();
+  return Boolean(clientId && clientSecret);
+}
+
+export function getSessionSecret() {
+  const secret = process.env.SESSION_SECRET;
+  if (!secret && process.env.NODE_ENV === 'production') {
+    throw new Error('SESSION_SECRET is required in production');
+  }
+  return secret ?? 'dev-only-session-secret-change-me';
+}

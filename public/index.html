@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="referrer" content="no-referrer">
-  <title>Sanctum Wiki</title>
+  <title>SanctumXI</title>
   <style>
     :root {
       color-scheme: dark;
@@ -39,9 +39,175 @@
     .header-row {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 1rem;
       max-width: min(1600px, 100%);
       margin: 0 auto;
+    }
+
+    .header-tools {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-left: auto;
+    }
+
+    #search-form {
+      display: flex;
+      gap: 0.35rem;
+      align-items: center;
+    }
+
+    #search-form input[type="search"] {
+      width: min(220px, 42vw);
+      padding: 0.4rem 0.65rem;
+      font-size: 0.85rem;
+    }
+
+    #search-form button {
+      padding: 0.4rem 0.7rem;
+      font-size: 0.82rem;
+    }
+
+    .auth-area {
+      position: relative;
+    }
+
+    .profile-button {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--muted);
+      padding: 0;
+      cursor: pointer;
+      overflow: hidden;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .profile-button:hover,
+    .profile-button[aria-expanded="true"] {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .profile-button img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .profile-button svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .profile-menu {
+      position: absolute;
+      top: calc(100% + 0.45rem);
+      right: 0;
+      min-width: 220px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+      padding: 0.35rem;
+      z-index: 20;
+    }
+
+    .profile-menu[hidden] {
+      display: none;
+    }
+
+    .profile-menu-header {
+      padding: 0.65rem 0.75rem 0.55rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 0.35rem;
+    }
+
+    .profile-menu-name {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .profile-menu-meta {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.15rem;
+    }
+
+    .profile-menu-item {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 0.55rem 0.75rem;
+      border: 0;
+      border-radius: 7px;
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .profile-menu-item:hover {
+      background: rgba(110, 181, 255, 0.08);
+      color: var(--accent);
+    }
+
+    .profile-menu-item.danger:hover {
+      background: rgba(255, 120, 120, 0.08);
+      color: #ff9f9f;
+    }
+
+    .profile-menu-item.discord {
+      color: #aeb7ff;
+    }
+
+    .home-panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem clamp(1.25rem, 4vw, 2.5rem);
+      max-width: 720px;
+    }
+
+    .home-panel h2 {
+      margin: 0 0 1rem;
+      font-size: 1.6rem;
+      letter-spacing: 0.03em;
+    }
+
+    .home-panel p {
+      margin: 0 0 1rem;
+      line-height: 1.6;
+    }
+
+    .home-panel p:last-child {
+      margin-bottom: 0;
+    }
+
+    .auth-notice {
+      margin-top: 1rem;
+      padding: 0.75rem 0.9rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+
+    .auth-notice.success {
+      border-color: rgba(110, 181, 255, 0.45);
+      background: rgba(110, 181, 255, 0.08);
+    }
+
+    .auth-notice.error {
+      border-color: rgba(255, 120, 120, 0.45);
+      background: rgba(255, 120, 120, 0.08);
     }
 
     h1 {
@@ -59,11 +225,9 @@
     form {
       display: flex;
       gap: 0.5rem;
-      flex: 1;
     }
 
     input[type="search"] {
-      flex: 1;
       padding: 0.65rem 0.9rem;
       border-radius: 8px;
       border: 1px solid var(--border);
@@ -144,6 +308,16 @@
     @media (max-width: 720px) {
       .header-row {
         flex-wrap: wrap;
+      }
+
+      .header-tools {
+        width: 100%;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+      }
+
+      #search-form input[type="search"] {
+        width: min(180px, 55vw);
       }
 
       h1 {
@@ -332,29 +506,821 @@
       padding: 2rem 1rem;
       text-align: center;
     }
+
+    .profile-page {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      max-width: 720px;
+    }
+
+    .profile-hero {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      padding: 1.75rem clamp(1.25rem, 4vw, 2rem);
+      border-bottom: 1px solid var(--border);
+      background: rgba(0, 0, 0, 0.12);
+    }
+
+    .profile-avatar {
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      background: rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+    }
+
+    .profile-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .profile-avatar svg {
+      width: 42px;
+      height: 42px;
+    }
+
+    .profile-hero-text h2 {
+      margin: 0 0 0.35rem;
+      font-size: 1.5rem;
+    }
+
+    .profile-hero-text .profile-handle {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .profile-hero-text .profile-private-note {
+      margin-top: 0.45rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .profile-body {
+      padding: 1.5rem clamp(1.25rem, 4vw, 2rem) 1.75rem;
+    }
+
+    .profile-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .profile-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .profile-section h3 {
+      margin: 0 0 0.85rem;
+      font-size: 0.92rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .profile-stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+
+    .profile-stat {
+      padding: 0.85rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.12);
+    }
+
+    .profile-stat-label {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .profile-stat-value {
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .profile-placeholder-note {
+      margin-top: 0.75rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .privacy-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .privacy-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.75rem 0.9rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.12);
+    }
+
+    .privacy-toggle-label {
+      font-size: 0.92rem;
+    }
+
+    .privacy-toggle input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .profile-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+
+    @media (max-width: 560px) {
+      .profile-hero {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .profile-stat-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      z-index: 100;
+    }
+
+    .modal-overlay[hidden] {
+      display: none;
+    }
+
+    .modal-panel {
+      width: min(440px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+      padding: 1.5rem;
+    }
+
+    .modal-panel h3 {
+      margin: 0 0 0.5rem;
+      font-size: 1.2rem;
+    }
+
+    .modal-panel p {
+      margin: 0 0 1rem;
+      line-height: 1.5;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .modal-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      margin-bottom: 1rem;
+    }
+
+    .modal-field label {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .modal-field input {
+      padding: 0.65rem 0.75rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: rgba(0, 0, 0, 0.2);
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    .modal-error {
+      margin-bottom: 0.75rem;
+      padding: 0.6rem 0.75rem;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 120, 120, 0.45);
+      background: rgba(255, 120, 120, 0.08);
+      color: #ff9f9f;
+      font-size: 0.88rem;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .modal-actions .btn-secondary {
+      padding: 0.55rem 0.9rem;
+      font-size: 0.9rem;
+    }
+
+    .modal-actions button[type="submit"] {
+      padding: 0.55rem 0.9rem;
+      font-size: 0.9rem;
+    }
   </style>
 </head>
 <body>
   <header>
     <div class="header-row">
-      <h1><a href="/" id="home-link">Sanctum Wiki</a></h1>
-      <form id="search-form">
-        <input id="search-input" type="search" placeholder="Search FFXI topics..." />
-        <button type="submit">Search</button>
-      </form>
+      <h1><a href="/" id="home-link">SanctumXI</a></h1>
+      <div class="header-tools">
+        <form id="search-form">
+          <input id="search-input" type="search" placeholder="Wiki search..." aria-label="Wiki search" />
+          <button type="submit">Search</button>
+        </form>
+        <div class="auth-area" id="auth-area">
+          <button
+            class="profile-button"
+            id="profile-button"
+            type="button"
+            aria-label="Account menu"
+            aria-expanded="false"
+            aria-haspopup="true"
+          ></button>
+          <div class="profile-menu" id="profile-menu" hidden></div>
+        </div>
+      </div>
     </div>
   </header>
 
   <main>
-    <p class="muted" id="status">Search BG Wiki, FFXIclopedia, and Sanctum's wiki.</p>
+    <div id="status" hidden></div>
     <div id="content"></div>
   </main>
+
+  <div id="link-modal" class="modal-overlay" hidden>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="link-modal-title">
+      <h3 id="link-modal-title">Link Character</h3>
+      <p id="link-modal-description"></p>
+      <div id="link-modal-error" class="modal-error" hidden></div>
+      <form id="link-modal-form">
+        <div class="modal-field" id="link-modal-field"></div>
+        <div class="modal-actions">
+          <button class="btn-secondary" type="button" id="link-modal-cancel">Cancel</button>
+          <button type="submit" id="link-modal-submit">Continue</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <script>
     const content = document.getElementById('content');
     const status = document.getElementById('status');
+    const authArea = document.getElementById('auth-area');
+    const profileButton = document.getElementById('profile-button');
+    const profileMenu = document.getElementById('profile-menu');
     const form = document.getElementById('search-form');
     const input = document.getElementById('search-input');
+
+    let authState = { loading: true, configured: false, user: null };
+    let profileMenuOpen = false;
+
+    function escapeHtml(text) {
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    const profileIconSvg = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <circle cx="12" cy="8" r="4"></circle>
+        <path d="M4 20c1.5-4 14.5-4 16 0"></path>
+      </svg>
+    `;
+
+    function closeProfileMenu() {
+      profileMenuOpen = false;
+      profileMenu.hidden = true;
+      profileButton.setAttribute('aria-expanded', 'false');
+    }
+
+    function openProfileMenu() {
+      profileMenuOpen = true;
+      profileMenu.hidden = false;
+      profileButton.setAttribute('aria-expanded', 'true');
+    }
+
+    function toggleProfileMenu() {
+      if (profileMenuOpen) {
+        closeProfileMenu();
+      } else {
+        openProfileMenu();
+      }
+    }
+
+    function bindProfileMenuActions() {
+      profileMenu.querySelectorAll('[data-action="login"]').forEach((link) => {
+        link.addEventListener('click', () => closeProfileMenu());
+      });
+
+      const profileBtn = profileMenu.querySelector('[data-action="profile"]');
+      if (profileBtn) {
+        profileBtn.addEventListener('click', () => {
+          closeProfileMenu();
+          navigateTo(new URLSearchParams({ view: 'profile' }));
+        });
+      }
+
+      const logoutBtn = profileMenu.querySelector('[data-action="logout"]');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+          closeProfileMenu();
+          await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+          authState.user = null;
+          renderAuthArea();
+        });
+      }
+    }
+
+    function renderProfileMenu() {
+      const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
+
+      if (authState.loading) {
+        profileMenu.innerHTML = `
+          <div class="profile-menu-header">
+            <div class="profile-menu-name">Checking account...</div>
+          </div>
+        `;
+        return;
+      }
+
+      if (authState.user) {
+        profileMenu.innerHTML = `
+          <div class="profile-menu-header">
+            <div class="profile-menu-name">${escapeHtml(authState.user.globalName)}</div>
+            <div class="profile-menu-meta">@${escapeHtml(authState.user.username)}</div>
+          </div>
+          <button class="profile-menu-item" type="button" data-action="profile">View profile</button>
+          <button class="profile-menu-item danger" type="button" data-action="logout">Log out</button>
+        `;
+        return;
+      }
+
+      if (authState.unavailable) {
+        profileMenu.innerHTML = `
+          <div class="profile-menu-header">
+            <div class="profile-menu-name">Sign-in unavailable</div>
+            <div class="profile-menu-meta">Could not reach the server auth API</div>
+          </div>
+        `;
+        return;
+      }
+
+      if (authState.configured) {
+        profileMenu.innerHTML = `
+          <div class="profile-menu-header">
+            <div class="profile-menu-name">Not signed in</div>
+            <div class="profile-menu-meta">Use Discord to sign in</div>
+          </div>
+          <a class="profile-menu-item discord" data-action="login" href="/auth/discord?returnTo=${returnTo}">Sign in with Discord</a>
+        `;
+        return;
+      }
+
+      profileMenu.innerHTML = `
+        <div class="profile-menu-header">
+          <div class="profile-menu-name">Accounts unavailable</div>
+          <div class="profile-menu-meta">Discord login is not configured</div>
+        </div>
+      `;
+    }
+
+    function renderAuthArea() {
+      closeProfileMenu();
+
+      if (authState.user) {
+        profileButton.innerHTML = `<img src="${authState.user.avatarUrl}" alt="" />`;
+        profileButton.title = authState.user.globalName;
+      } else {
+        profileButton.innerHTML = profileIconSvg;
+        profileButton.title = 'Account';
+      }
+
+      renderProfileMenu();
+      bindProfileMenuActions();
+    }
+
+    profileButton.addEventListener('click', (event) => {
+      event.stopPropagation();
+      toggleProfileMenu();
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!authArea.contains(event.target)) {
+        closeProfileMenu();
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        closeProfileMenu();
+      }
+    });
+
+    async function fetchJson(url, options = {}) {
+      const response = await fetch(url, {
+        credentials: 'same-origin',
+        ...options,
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error ?? 'Request failed');
+      return data;
+    }
+
+    async function loadAuthState() {
+      authState = { ...authState, loading: true };
+      renderAuthArea();
+      try {
+        authState = { ...(await fetchJson('/api/auth/me')), loading: false };
+      } catch (error) {
+        console.error('Auth status check failed:', error);
+        authState = { configured: false, user: null, unavailable: true, loading: false };
+      }
+      renderAuthArea();
+    }
+
+    const profileAvatarPlaceholder = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <circle cx="12" cy="8" r="4"></circle>
+        <path d="M4 20c1.5-4 14.5-4 16 0"></path>
+      </svg>
+    `;
+
+    function profileAvatarMarkup(avatarUrl) {
+      if (avatarUrl) {
+        return `<img src="${escapeHtml(avatarUrl)}" alt="" />`;
+      }
+      return profileAvatarPlaceholder;
+    }
+
+    function renderProfileHero(profile) {
+      const { discord, game, isOwner } = profile;
+      const handle = discord.username
+        ? `<div class="profile-handle">@${escapeHtml(discord.username)}</div>`
+        : (!isOwner ? '<div class="profile-private-note">Discord username is private</div>' : '');
+
+      return `
+        <div class="profile-hero">
+          <div class="profile-avatar">${profileAvatarMarkup(discord.avatarUrl)}</div>
+          <div class="profile-hero-text">
+            <h2>${escapeHtml(game.characterName)}</h2>
+            <div class="muted">${escapeHtml(discord.globalName)}</div>
+            ${handle}
+            ${!discord.avatarUrl && !isOwner ? '<div class="profile-private-note">Discord avatar is private</div>' : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderProfileGameStats(profile) {
+      const { game } = profile;
+      return `
+        <div class="profile-section">
+          <h3>Character</h3>
+          <div class="profile-stat-grid">
+            <div class="profile-stat">
+              <span class="profile-stat-label">Job &amp; Level</span>
+              <span class="profile-stat-value">${escapeHtml(game.job)} / ${escapeHtml(String(game.level))}</span>
+            </div>
+            <div class="profile-stat">
+              <span class="profile-stat-label">Zone</span>
+              <span class="profile-stat-value">${escapeHtml(game.zone)}</span>
+            </div>
+            <div class="profile-stat">
+              <span class="profile-stat-label">Nation</span>
+              <span class="profile-stat-value">${escapeHtml(game.nation)}</span>
+            </div>
+            <div class="profile-stat">
+              <span class="profile-stat-label">Character</span>
+              <span class="profile-stat-value">${escapeHtml(game.characterName)}</span>
+            </div>
+          </div>
+          ${game.linked ? '' : '<p class="profile-placeholder-note">Game data will appear here once your character is linked to the database.</p>'}
+        </div>
+      `;
+    }
+
+    function renderProfileLinkSection(profile) {
+      if (!profile.isOwner || profile.game?.linked) {
+        return '';
+      }
+
+      return `
+        <div class="profile-section">
+          <h3>Game Account</h3>
+          <p class="profile-placeholder-note">Link your FFXI character to load stats on your profile and use account features.</p>
+          <div class="profile-actions">
+            <button type="button" id="link-character-btn">Link Character</button>
+          </div>
+        </div>
+      `;
+    }
+
+    const linkModal = document.getElementById('link-modal');
+    const linkModalTitle = document.getElementById('link-modal-title');
+    const linkModalDescription = document.getElementById('link-modal-description');
+    const linkModalError = document.getElementById('link-modal-error');
+    const linkModalForm = document.getElementById('link-modal-form');
+    const linkModalField = document.getElementById('link-modal-field');
+    const linkModalCancel = document.getElementById('link-modal-cancel');
+    const linkModalSubmit = document.getElementById('link-modal-submit');
+
+    let linkModalStep = 'character';
+
+    function setLinkModalError(message = '') {
+      if (!message) {
+        linkModalError.hidden = true;
+        linkModalError.textContent = '';
+        return;
+      }
+      linkModalError.hidden = false;
+      linkModalError.textContent = message;
+    }
+
+    function closeLinkModal() {
+      linkModal.hidden = true;
+      linkModalStep = 'character';
+      linkModalForm.reset();
+      setLinkModalError();
+    }
+
+    function openLinkModal() {
+      linkModalStep = 'character';
+      linkModalTitle.textContent = 'Link Character';
+      linkModalDescription.textContent = 'Enter your character name exactly as it appears in game.';
+      linkModalSubmit.textContent = 'Continue';
+      linkModalField.innerHTML = `
+        <label for="link-character-name">Character name</label>
+        <input id="link-character-name" name="characterName" type="text" autocomplete="off" required />
+      `;
+      setLinkModalError();
+      linkModal.hidden = false;
+      linkModal.querySelector('#link-character-name')?.focus();
+    }
+
+    function showLinkExperienceStep(characterName, job) {
+      linkModalStep = 'experience';
+      linkModalTitle.textContent = 'Verify Ownership';
+      linkModalDescription.textContent = `Confirm that ${characterName} is yours by entering the exact experience value for ${job}. Check the Experience menu in game — do not include commas.`;
+      linkModalSubmit.textContent = 'Link Account';
+      linkModalField.innerHTML = `
+        <label for="link-job-exp">${escapeHtml(job)} experience</label>
+        <input id="link-job-exp" name="experience" type="number" min="0" step="1" inputmode="numeric" autocomplete="off" required />
+      `;
+      setLinkModalError();
+      linkModal.querySelector('#link-job-exp')?.focus();
+    }
+
+    async function handleLinkModalSubmit(event) {
+      event.preventDefault();
+      setLinkModalError();
+      linkModalSubmit.disabled = true;
+
+      try {
+        if (linkModalStep === 'character') {
+          const characterName = linkModalForm.characterName?.value?.trim();
+          if (!characterName) {
+            setLinkModalError('Character name is required.');
+            return;
+          }
+
+          const prompt = await fetchJson('/api/account/link/start', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ characterName }),
+          });
+
+          showLinkExperienceStep(prompt.characterName, prompt.job);
+          return;
+        }
+
+        const experience = linkModalForm.experience?.value;
+        await fetchJson('/api/account/link/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ experience }),
+        });
+
+        closeLinkModal();
+        const profile = await fetchJson('/api/profile/me');
+        renderProfilePageContent(profile);
+      } catch (error) {
+        setLinkModalError(error.message ?? 'Linking failed.');
+      } finally {
+        linkModalSubmit.disabled = false;
+      }
+    }
+
+    linkModalForm.addEventListener('submit', handleLinkModalSubmit);
+    linkModalCancel.addEventListener('click', closeLinkModal);
+    linkModal.addEventListener('click', (event) => {
+      if (event.target === linkModal) {
+        closeLinkModal();
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !linkModal.hidden) {
+        closeLinkModal();
+      }
+    });
+
+    function bindProfileLinkButton() {
+      const linkBtn = content.querySelector('#link-character-btn');
+      if (!linkBtn) return;
+      linkBtn.addEventListener('click', openLinkModal);
+    }
+
+    function renderProfilePrivacyControls(profile) {
+      if (!profile.isOwner || !profile.privacy) {
+        return '';
+      }
+
+      return `
+        <div class="profile-section">
+          <h3>Privacy</h3>
+          <div class="privacy-list">
+            <label class="privacy-toggle">
+              <span class="privacy-toggle-label">Show Discord avatar on public profile</span>
+              <input type="checkbox" id="privacy-show-avatar" ${profile.privacy.showAvatar ? 'checked' : ''} />
+            </label>
+            <label class="privacy-toggle">
+              <span class="privacy-toggle-label">Show Discord username on public profile</span>
+              <input type="checkbox" id="privacy-show-username" ${profile.privacy.showUsername ? 'checked' : ''} />
+            </label>
+          </div>
+          <p class="profile-placeholder-note">When private, other players will not see these fields on your profile.</p>
+        </div>
+      `;
+    }
+
+    function bindProfilePrivacyControls() {
+      const avatarToggle = content.querySelector('#privacy-show-avatar');
+      const usernameToggle = content.querySelector('#privacy-show-username');
+      if (!avatarToggle || !usernameToggle) return;
+
+      async function savePrivacy() {
+        try {
+          const profile = await fetchJson('/api/profile/me', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              showAvatar: avatarToggle.checked,
+              showUsername: usernameToggle.checked,
+            }),
+          });
+          renderProfilePageContent(profile);
+        } catch (error) {
+          alert(error.message ?? 'Could not save privacy settings.');
+        }
+      }
+
+      avatarToggle.addEventListener('change', savePrivacy);
+      usernameToggle.addEventListener('change', savePrivacy);
+    }
+
+    function renderProfilePageContent(profile) {
+      status.hidden = false;
+      status.className = 'muted';
+      status.textContent = profile.isOwner ? 'Your profile' : 'Player profile';
+      input.value = '';
+
+      content.innerHTML = `
+        <div class="profile-page">
+          ${renderProfileHero(profile)}
+          <div class="profile-body">
+            ${renderProfileGameStats(profile)}
+            ${renderProfileLinkSection(profile)}
+            ${renderProfilePrivacyControls(profile)}
+            ${profile.isOwner ? '' : '<div class="profile-actions"><button class="btn-secondary" type="button" id="profile-back">Back</button></div>'}
+          </div>
+        </div>
+      `;
+
+      bindProfilePrivacyControls();
+      bindProfileLinkButton();
+
+      const backBtn = content.querySelector('#profile-back');
+      if (backBtn) {
+        backBtn.addEventListener('click', () => navigateTo(new URLSearchParams()));
+      }
+    }
+
+    async function renderProfilePage() {
+      const params = new URLSearchParams(window.location.search);
+      const targetId = params.get('id');
+
+      if (!targetId && !authState.user) {
+        status.hidden = true;
+        content.innerHTML = `
+          <div class="home-panel">
+            <h2>Profile</h2>
+            <p>Sign in with Discord to view and manage your profile.</p>
+            <a class="profile-menu-item discord" href="/auth/discord?returnTo=${encodeURIComponent('/?view=profile')}">Sign in with Discord</a>
+          </div>
+        `;
+        input.value = '';
+        return;
+      }
+
+      status.hidden = false;
+      status.className = 'muted';
+      status.textContent = 'Loading profile...';
+      content.innerHTML = '<div class="profile-page"><p class="loading">Loading profile...</p></div>';
+      input.value = '';
+
+      try {
+        const url = targetId
+          ? `/api/profile/${encodeURIComponent(targetId)}`
+          : '/api/profile/me';
+        const profile = await fetchJson(url);
+        renderProfilePageContent(profile);
+      } catch (error) {
+        status.textContent = 'Profile unavailable';
+        content.innerHTML = `
+          <div class="home-panel">
+            <h2>Profile</h2>
+            <p>${escapeHtml(error.message ?? 'That profile could not be loaded.')}</p>
+            <div class="profile-actions">
+              <button class="btn-secondary" type="button" id="profile-back">Back</button>
+            </div>
+          </div>
+        `;
+        content.querySelector('#profile-back')?.addEventListener('click', () => {
+          navigateTo(new URLSearchParams());
+        });
+      }
+    }
+
+    function renderHome(authMessage = '') {
+      status.hidden = true;
+      content.innerHTML = `
+        <div class="home-panel">
+          <h2>SanctumXI</h2>
+          <p>Welcome to the placeholder home page for the SanctumXI private server.</p>
+          <p class="muted">More site features are coming soon. Use the wiki search in the top-right to browse retail FFXI reference content, or sign in with Discord when account features are enabled.</p>
+          ${authMessage}
+        </div>
+      `;
+      input.value = '';
+    }
+
+    function authNoticeFromParams(params) {
+      const auth = params.get('auth');
+      if (auth === 'success') {
+        return '<div class="auth-notice success">Signed in with Discord successfully.</div>';
+      }
+      if (auth === 'denied') {
+        return '<div class="auth-notice error">Discord sign-in was cancelled.</div>';
+      }
+      if (auth === 'error') {
+        return '<div class="auth-notice error">Discord sign-in failed. Check server configuration and try again.</div>';
+      }
+      return '';
+    }
+
+    function clearAuthParams() {
+      const params = new URLSearchParams(window.location.search);
+      if (!params.has('auth')) return;
+      params.delete('auth');
+      const next = params.toString();
+      history.replaceState(null, '', next ? `/?${next}` : '/');
+    }
 
     function pageParams(title, source) {
       const params = new URLSearchParams({ title });
@@ -370,13 +1336,6 @@
         history.pushState(null, '', url);
       }
       boot();
-    }
-
-    async function fetchJson(url, options) {
-      const response = await fetch(url, options);
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? 'Request failed');
-      return data;
     }
 
     function preferredSource(sources) {
@@ -580,6 +1539,8 @@
       const q = params.get('q');
 
       if (title) {
+        status.hidden = false;
+        status.className = 'muted';
         status.textContent = 'Loading...';
         content.innerHTML = '<div class="article-shell"><p class="loading">Loading article...</p></div>';
         input.value = title;
@@ -596,6 +1557,8 @@
       }
 
       if (q) {
+        status.hidden = false;
+        status.className = 'muted';
         status.textContent = 'Searching...';
         content.innerHTML = '<div class="results"><p class="loading">Searching...</p></div>';
         input.value = q;
@@ -610,13 +1573,26 @@
         return;
       }
 
-      status.textContent = 'Search BG Wiki, FFXIclopedia, and Sanctum\'s wiki.';
-      content.innerHTML = '';
-      input.value = '';
+      if (params.get('view') === 'profile') {
+        if (params.get('auth') === 'success') {
+          await loadAuthState();
+        }
+        await renderProfilePage();
+        clearAuthParams();
+        return;
+      }
+
+      if (params.get('auth') === 'success') {
+        await loadAuthState();
+      }
+
+      const authMessage = authNoticeFromParams(params);
+      renderHome(authMessage);
+      clearAuthParams();
     }
 
     window.addEventListener('popstate', boot);
-    boot();
+    loadAuthState().finally(boot);
   </script>
 </body>
 </html>

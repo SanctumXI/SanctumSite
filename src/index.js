@@ -1,9 +1,18 @@
+import './load-env.js';
 import express from 'express';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import 'dotenv/config';
+import { getDiscordConfig, isDiscordAuthConfigured } from './config/auth.js';
+import { createSessionMiddleware } from './config/session.js';
+import { verifyDiscordCredentials } from './services/auth/discord-oauth.js';
 import indexRoutes from './routes/index.js';
 import wikiRoutes from './routes/wiki.js';
+import authRoutes from './routes/auth.js';
+import profileRoutes from './routes/profile.js';
+import accountRoutes from './routes/account.js';
+import launcherAuthRoutes from './routes/launcher-auth.js';
+import { securityHeaders } from './middleware/require-https.js';
+import { optionalAuthenticate } from './middleware/authenticate.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const publicDir = path.join(__dirname, '..', 'public');
@@ -12,8 +21,16 @@ const indexHtml = path.join(publicDir, 'index.html');
 const app = express();
 const port = Number(process.env.PORT ?? 3000);
 const host = process.env.HOST ?? '0.0.0.0';
+const isProduction = process.env.NODE_ENV === 'production';
+
+if (isProduction) {
+  app.set('trust proxy', 1);
+}
 
 app.use(express.json());
+app.use(createSessionMiddleware());
+app.use(securityHeaders);
+app.use(optionalAuthenticate);
 app.use(express.static(publicDir));
 
 app.get('/', (_req, res) => {
@@ -22,6 +39,11 @@ app.get('/', (_req, res) => {
 
 app.use('/', indexRoutes);
 app.use('/api/wiki', wikiRoutes);
+app.use('/auth', authRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/profile', profileRoutes);
+app.use('/api/account', accountRoutes);
+app.use('/api/auth/launcher', launcherAuthRoutes);
 
 app.use((error, _req, res, _next) => {
   console.error(error);
@@ -31,4 +53,37 @@ app.use((error, _req, res, _next) => {
 app.listen(port, host, () => {
   console.log(`Sanctum site listening on http://${host}:${port}`);
   console.log(`Serving static files from ${publicDir}`);
+
+  if (!isDiscordAuthConfigured()) {
+    console.log('Discord login: NOT configured (set DISCORD_CLIENT_ID and DISCORD_CLIENT_SECRET in .env)');
+    return;
+  }
+
+  console.log('Discord login: configured (checking credentials with Discord...)');
+  verifyDiscordCredentials()
+    .then((result) => {
+      if (result.ok) {
+        console.log('Discord login: credentials accepted by Discord');
+        return;
+      }
+
+      if (result.reason === 'invalid_client') {
+        const { clientId, redirectUri } = getDiscordConfig();
+        console.error('Discord login: Discord rejected the client ID/secret pair (invalid_client)');
+        console.error(`  Client ID sent: ${clientId}`);
+        console.error(`  Redirect URI sent: ${redirectUri}`);
+        console.error(`  App portal: https://discord.com/developers/applications/${clientId}`);
+        console.error('  If the portal page loads but login still fails:');
+        console.error('     1. OAuth2 -> Reset Client Secret, paste the new value into .env');
+        console.error('     2. OAuth2 -> Redirects must include exactly: ' + redirectUri);
+        console.error('     3. OAuth2 -> turn OFF "Requires OAuth2 Code Grant"');
+        console.error('     4. If the portal page itself errors, create a new application');
+        return;
+      }
+
+      console.error(`Discord login: credential check failed (${result.reason})`);
+    })
+    .catch((error) => {
+      console.error('Discord login: could not reach Discord API to verify credentials', error);
+    });
 });
