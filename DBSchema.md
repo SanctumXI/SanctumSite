@@ -12,6 +12,8 @@ Transport: protected values are only served over **HTTPS** in production (`NODE_
 
 Implementation: `src/config/field-policy.js`, `src/services/account/game-account.js`
 
+Profile pages: [docs/PROFILE_API.md](docs/PROFILE_API.md) — own (`/?view=profile`) vs public (`/?view=profile&id=…`)
+
 Website tables on `xidb`:
 
 - **New install:** `sql/site-tables.sql`

@@ -20,6 +20,7 @@ function buildProfileResponse(stored, game, viewerDiscordId) {
       showAvatar: stored.showAvatar,
       showUsername: stored.showUsername,
     };
+    response.view = 'own';
     return response;
   }
 
@@ -28,6 +29,7 @@ function buildProfileResponse(stored, game, viewerDiscordId) {
     username: stored.showUsername ? stored.username : null,
     globalName: stored.globalName,
   };
+  response.view = 'public';
 
   return response;
 }

@@ -1,7 +1,18 @@
 import { Router } from 'express';
 import { requireAuth } from '../middleware/require-auth.js';
+import { resolveDiscordIdByCharacterName } from '../services/profile/profile-lookup.js';
 import { getProfileForViewer } from '../services/profile/profile-service.js';
 import { updatePrivacy, upsertFromDiscord } from '../services/profile/profile-store.js';
+
+async function sendProfileForViewer(res, discordId, viewerDiscordId) {
+  const profile = await getProfileForViewer(discordId, viewerDiscordId);
+  if (!profile) {
+    res.status(404).json({ error: 'Profile not found' });
+    return;
+  }
+
+  res.json(profile);
+}
 
 const router = Router();
 
@@ -43,16 +54,22 @@ router.patch('/me', requireAuth, async (req, res) => {
   res.json(profile);
 });
 
+router.get('/by-character/:characterName', async (req, res) => {
+  try {
+    const { discordId } = await resolveDiscordIdByCharacterName(
+      decodeURIComponent(req.params.characterName),
+    );
+    const viewerDiscordId = req.auth?.discordId ?? req.session.user?.id ?? null;
+    await sendProfileForViewer(res, discordId, viewerDiscordId);
+  } catch (error) {
+    const status = error.code === 'PROFILE_NOT_FOUND' ? 404 : 400;
+    res.status(status).json({ error: error.message });
+  }
+});
+
 router.get('/:discordId', async (req, res) => {
   const viewerDiscordId = req.auth?.discordId ?? req.session.user?.id ?? null;
-  const profile = await getProfileForViewer(req.params.discordId, viewerDiscordId);
-
-  if (!profile) {
-    res.status(404).json({ error: 'Profile not found' });
-    return;
-  }
-
-  res.json(profile);
+  await sendProfileForViewer(res, req.params.discordId, viewerDiscordId);
 });
 
 export default router;

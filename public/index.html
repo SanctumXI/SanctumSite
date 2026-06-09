@@ -52,6 +52,10 @@
       margin-left: auto;
     }
 
+    .search-wrap {
+      position: relative;
+    }
+
     #search-form {
       display: flex;
       gap: 0.35rem;
@@ -67,6 +71,144 @@
     #search-form button {
       padding: 0.4rem 0.7rem;
       font-size: 0.82rem;
+    }
+
+    .search-suggestions {
+      position: absolute;
+      top: calc(100% + 0.35rem);
+      right: 0;
+      min-width: min(280px, 70vw);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+      padding: 0.35rem;
+      z-index: 30;
+    }
+
+    .search-suggestions[hidden] {
+      display: none;
+    }
+
+    .search-suggestions-label {
+      padding: 0.45rem 0.65rem 0.25rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .search-suggestion {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 0.55rem 0.65rem;
+      border: 0;
+      border-radius: 7px;
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .search-suggestion:hover,
+    .search-suggestion[aria-selected="true"] {
+      background: rgba(110, 181, 255, 0.08);
+      color: var(--accent);
+    }
+
+    .search-suggestion-meta {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.1rem;
+    }
+
+    .market-page {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .market-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      padding: 1rem 1.1rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(0, 0, 0, 0.12);
+    }
+
+    .market-header h2 {
+      margin: 0;
+      font-size: 1.35rem;
+    }
+
+    .market-body {
+      padding: 1rem 1.1rem 1.25rem;
+    }
+
+    .market-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .market-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .market-section h3 {
+      margin: 0 0 0.75rem;
+      font-size: 0.92rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .market-table-wrap {
+      overflow-x: auto;
+    }
+
+    .market-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+
+    .market-table th,
+    .market-table td {
+      padding: 0.55rem 0.65rem;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+
+    .market-table th {
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .market-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .market-seller-link {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .market-seller-link:hover {
+      text-decoration: underline;
+    }
+
+    .market-empty {
+      color: var(--muted);
+      font-size: 0.9rem;
+      padding: 0.5rem 0;
     }
 
     .auth-area {
@@ -757,10 +899,13 @@
     <div class="header-row">
       <h1><a href="/" id="home-link">SanctumXI</a></h1>
       <div class="header-tools">
-        <form id="search-form">
-          <input id="search-input" type="search" placeholder="Wiki search..." aria-label="Wiki search" />
-          <button type="submit">Search</button>
-        </form>
+        <div class="search-wrap">
+          <form id="search-form">
+            <input id="search-input" type="search" placeholder="Search wiki or players..." aria-label="Search wiki or players" autocomplete="off" />
+            <button type="submit">Search</button>
+          </form>
+          <div id="search-suggestions" class="search-suggestions" hidden></div>
+        </div>
         <div class="auth-area" id="auth-area">
           <button
             class="profile-button"
@@ -804,8 +949,12 @@
     const profileMenu = document.getElementById('profile-menu');
     const form = document.getElementById('search-form');
     const input = document.getElementById('search-input');
+    const searchSuggestions = document.getElementById('search-suggestions');
+    const searchWrap = document.querySelector('.search-wrap');
 
     let authState = { loading: true, configured: false, user: null };
+    let searchSuggestTimer = null;
+    let searchSuggestRequest = 0;
     let profileMenuOpen = false;
 
     function escapeHtml(text) {
@@ -1006,7 +1155,14 @@
     }
 
     function renderProfileGameStats(profile) {
-      const { game } = profile;
+      const { game, isOwner } = profile;
+      const unlinkedNote = !game.linked && isOwner
+        ? '<p class="profile-placeholder-note">Link your character to show game stats on your profile.</p>'
+        : '';
+      const publicUnlinkedNote = !game.linked && !isOwner
+        ? '<p class="profile-placeholder-note">This player has not linked a character.</p>'
+        : '';
+
       return `
         <div class="profile-section">
           <h3>Character</h3>
@@ -1028,7 +1184,7 @@
               <span class="profile-stat-value">${escapeHtml(game.characterName)}</span>
             </div>
           </div>
-          ${game.linked ? '' : '<p class="profile-placeholder-note">Game data will appear here once your character is linked to the database.</p>'}
+          ${unlinkedNote}${publicUnlinkedNote}
         </div>
       `;
     }
@@ -1212,38 +1368,83 @@
       usernameToggle.addEventListener('change', savePrivacy);
     }
 
-    function renderProfilePageContent(profile) {
+    function renderOwnProfilePage(profile) {
       status.hidden = false;
       status.className = 'muted';
-      status.textContent = profile.isOwner ? 'Your profile' : 'Player profile';
+      status.textContent = 'Your profile';
       input.value = '';
 
       content.innerHTML = `
-        <div class="profile-page">
+        <div class="profile-page profile-page--own">
           ${renderProfileHero(profile)}
           <div class="profile-body">
             ${renderProfileGameStats(profile)}
             ${renderProfileLinkSection(profile)}
             ${renderProfilePrivacyControls(profile)}
-            ${profile.isOwner ? '' : '<div class="profile-actions"><button class="btn-secondary" type="button" id="profile-back">Back</button></div>'}
           </div>
         </div>
       `;
 
       bindProfilePrivacyControls();
       bindProfileLinkButton();
+    }
 
-      const backBtn = content.querySelector('#profile-back');
-      if (backBtn) {
-        backBtn.addEventListener('click', () => navigateTo(new URLSearchParams()));
+    function renderPublicProfilePage(profile) {
+      status.hidden = false;
+      status.className = 'muted';
+      status.textContent = 'Player profile';
+      input.value = '';
+
+      const title = profile.game?.linked && profile.game.characterName !== '—'
+        ? profile.game.characterName
+        : profile.discord.globalName;
+
+      content.innerHTML = `
+        <div class="profile-page profile-page--public">
+          ${renderProfileHero(profile)}
+          <div class="profile-body">
+            ${renderProfileGameStats(profile)}
+            <div class="profile-actions">
+              <button class="btn-secondary" type="button" id="profile-back">Back</button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      status.textContent = title ? `Profile: ${title}` : 'Player profile';
+
+      content.querySelector('#profile-back')?.addEventListener('click', () => {
+        navigateTo(new URLSearchParams());
+      });
+    }
+
+    function renderProfilePageContent(profile) {
+      if (profile.isOwner) {
+        renderOwnProfilePage(profile);
+        return;
       }
+      renderPublicProfilePage(profile);
+    }
+
+    function profileUrlByDiscordId(discordId) {
+      return `/?view=profile&id=${encodeURIComponent(discordId)}`;
+    }
+
+    function profileUrlByCharacter(characterName) {
+      return `/?view=profile&character=${encodeURIComponent(characterName)}`;
     }
 
     async function renderProfilePage() {
       const params = new URLSearchParams(window.location.search);
       const targetId = params.get('id');
+      const targetCharacter = params.get('character');
 
-      if (!targetId && !authState.user) {
+      if (targetId && authState.user?.id === targetId) {
+        navigateTo(new URLSearchParams({ view: 'profile' }), true);
+        return;
+      }
+
+      if (!targetId && !targetCharacter && !authState.user) {
         status.hidden = true;
         content.innerHTML = `
           <div class="home-panel">
@@ -1263,10 +1464,17 @@
       input.value = '';
 
       try {
-        const url = targetId
-          ? `/api/profile/${encodeURIComponent(targetId)}`
-          : '/api/profile/me';
+        let url = '/api/profile/me';
+        if (targetCharacter) {
+          url = `/api/profile/by-character/${encodeURIComponent(targetCharacter)}`;
+        } else if (targetId) {
+          url = `/api/profile/${encodeURIComponent(targetId)}`;
+        }
+
         const profile = await fetchJson(url);
+        if (profile.isOwner && (targetId || targetCharacter)) {
+          history.replaceState(null, '', '/?view=profile');
+        }
         renderProfilePageContent(profile);
       } catch (error) {
         status.textContent = 'Profile unavailable';
@@ -1324,6 +1532,234 @@
       const params = new URLSearchParams({ title });
       if (source) params.set('source', source);
       return params;
+    }
+
+    function closeSearchSuggestions() {
+      searchSuggestions.hidden = true;
+      searchSuggestions.innerHTML = '';
+    }
+
+    function renderSearchSuggestions(suggestions) {
+      if (!suggestions.length) {
+        closeSearchSuggestions();
+        return;
+      }
+
+      searchSuggestions.innerHTML = `
+        <div class="search-suggestions-label">Players</div>
+        ${suggestions.map((entry) => `
+          <button class="search-suggestion" type="button">
+            ${escapeHtml(entry.label)}
+            <span class="search-suggestion-meta">View profile</span>
+          </button>
+        `).join('')}
+      `;
+
+      searchSuggestions.hidden = false;
+      searchSuggestions.querySelectorAll('.search-suggestion').forEach((button, index) => {
+        const characterName = suggestions[index].characterName;
+        button.addEventListener('click', () => {
+          closeSearchSuggestions();
+          navigateTo(new URLSearchParams({
+            view: 'profile',
+            character: characterName,
+          }));
+        });
+      });
+    }
+
+    async function updateSearchSuggestions(value) {
+      const q = value.trim();
+      const requestId = ++searchSuggestRequest;
+
+      if (q.length < 2) {
+        closeSearchSuggestions();
+        return;
+      }
+
+      try {
+        const data = await fetchJson(`/api/search/suggest?q=${encodeURIComponent(q)}`);
+        if (requestId !== searchSuggestRequest) {
+          return;
+        }
+        renderSearchSuggestions(data.suggestions ?? []);
+      } catch {
+        if (requestId === searchSuggestRequest) {
+          closeSearchSuggestions();
+        }
+      }
+    }
+
+    input.addEventListener('input', () => {
+      clearTimeout(searchSuggestTimer);
+      searchSuggestTimer = setTimeout(() => {
+        updateSearchSuggestions(input.value);
+      }, 250);
+    });
+
+    input.addEventListener('focus', () => {
+      if (input.value.trim().length >= 2) {
+        updateSearchSuggestions(input.value);
+      }
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!searchWrap.contains(event.target)) {
+        closeSearchSuggestions();
+      }
+    });
+
+    function marketPageParams(title, source) {
+      const params = new URLSearchParams({ title, view: 'market' });
+      if (source) {
+        params.set('source', source);
+      }
+      return params;
+    }
+
+    function wikiPageParams(title, source) {
+      return pageParams(title, source);
+    }
+
+    function renderSellerLink(name) {
+      if (!name || name === '—') {
+        return '—';
+      }
+      const href = profileUrlByCharacter(name);
+      return `<a class="market-seller-link" href="${href}">${escapeHtml(name)}</a>`;
+    }
+
+    async function renderMarketPage(title, source) {
+      status.hidden = false;
+      status.className = 'muted';
+      status.textContent = 'Loading Sanctum Market...';
+      content.innerHTML = '<div class="market-page"><p class="loading">Loading listings...</p></div>';
+      input.value = title;
+
+      try {
+        const data = await fetchJson(`/api/market/item?title=${encodeURIComponent(title)}`);
+        const { listings, itemName } = data;
+        status.textContent = `Sanctum Market: ${itemName}`;
+
+        const ahActive = listings.auctionHouse.active.length
+          ? `<div class="market-table-wrap"><table class="market-table">
+              <thead><tr><th>Seller</th><th>Price</th><th>Type</th></tr></thead>
+              <tbody>
+                ${listings.auctionHouse.active.map((row) => `
+                  <tr>
+                    <td>${renderSellerLink(row.sellerName)}</td>
+                    <td>${row.price.toLocaleString()} gil</td>
+                    <td>${escapeHtml(row.stackLabel)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table></div>`
+          : '<p class="market-empty">No active auction house listings.</p>';
+
+        const ahHistory = listings.auctionHouse.history.length
+          ? `<div class="market-table-wrap"><table class="market-table">
+              <thead><tr><th>Seller</th><th>Buyer</th><th>Sale</th><th>Date</th><th>Type</th></tr></thead>
+              <tbody>
+                ${listings.auctionHouse.history.map((row) => `
+                  <tr>
+                    <td>${renderSellerLink(row.sellerName)}</td>
+                    <td>${renderSellerLink(row.buyerName)}</td>
+                    <td>${row.sale.toLocaleString()} gil</td>
+                    <td>${escapeHtml(row.sellDateLabel)}</td>
+                    <td>${escapeHtml(row.stackLabel)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table></div>`
+          : '<p class="market-empty">No recent auction house sales.</p>';
+
+        const bazaar = listings.bazaar.length
+          ? `<div class="market-table-wrap"><table class="market-table">
+              <thead><tr><th>Seller</th><th>Qty</th><th>Price</th></tr></thead>
+              <tbody>
+                ${listings.bazaar.map((row) => `
+                  <tr>
+                    <td>${renderSellerLink(row.sellerName)}</td>
+                    <td>${row.quantity}</td>
+                    <td>${row.price.toLocaleString()} gil</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table></div>`
+          : '<p class="market-empty">No bazaar listings.</p>';
+
+        content.innerHTML = `
+          <div class="market-page">
+            <div class="market-header">
+              <h2>Sanctum Market — ${escapeHtml(itemName)}</h2>
+              <button class="btn-secondary" type="button" id="market-back-wiki">Back to wiki</button>
+            </div>
+            <div class="market-body">
+              <div class="market-section">
+                <h3>Auction House (active)</h3>
+                ${ahActive}
+              </div>
+              <div class="market-section">
+                <h3>Bazaar</h3>
+                ${bazaar}
+              </div>
+              <div class="market-section">
+                <h3>Recent sales</h3>
+                ${ahHistory}
+              </div>
+            </div>
+          </div>
+        `;
+
+        content.querySelector('#market-back-wiki')?.addEventListener('click', () => {
+          navigateTo(wikiPageParams(title, source));
+        });
+
+        content.querySelectorAll('a.market-seller-link').forEach((link) => {
+          link.addEventListener('click', (event) => {
+            event.preventDefault();
+            navigateTo(new URLSearchParams(link.getAttribute('href').slice(2)));
+          });
+        });
+      } catch (error) {
+        status.textContent = 'Market unavailable';
+        content.innerHTML = `
+          <div class="home-panel">
+            <h2>Sanctum Market</h2>
+            <p>${escapeHtml(error.message ?? 'Could not load market data for that item.')}</p>
+            <button class="btn-secondary" type="button" id="market-back-wiki">Back to wiki</button>
+          </div>
+        `;
+        content.querySelector('#market-back-wiki')?.addEventListener('click', () => {
+          navigateTo(wikiPageParams(title, source));
+        });
+      }
+    }
+
+    async function attachSanctumMarketButton(page) {
+      try {
+        const check = await fetchJson(`/api/market/check?title=${encodeURIComponent(page.title)}`);
+        if (!check.found || !check.hasListings) {
+          return;
+        }
+
+        const actions = content.querySelector('.article-actions');
+        if (!actions || content.querySelector('#sanctum-market-btn')) {
+          return;
+        }
+
+        const btn = document.createElement('button');
+        btn.className = 'btn-secondary';
+        btn.type = 'button';
+        btn.id = 'sanctum-market-btn';
+        btn.textContent = 'Sanctum Market';
+        btn.addEventListener('click', () => {
+          navigateTo(marketPageParams(page.title, page.source));
+        });
+        actions.insertBefore(btn, actions.firstChild);
+      } catch {
+        // Item may not exist in item_basic — no market button
+      }
     }
 
     function navigateTo(params, replace = false) {
@@ -1521,10 +1957,15 @@
           boot();
         });
       }
+
+      if (!editing) {
+        attachSanctumMarketButton(page);
+      }
     }
 
     form.addEventListener('submit', (event) => {
       event.preventDefault();
+      closeSearchSuggestions();
       const q = input.value.trim();
       if (!q) return;
       navigateTo(new URLSearchParams({ q }));
@@ -1535,6 +1976,11 @@
       const title = params.get('title');
       const source = params.get('source') ?? 'bgwiki';
       const q = params.get('q');
+
+      if (title && params.get('view') === 'market') {
+        await renderMarketPage(title, source);
+        return;
+      }
 
       if (title) {
         status.hidden = false;

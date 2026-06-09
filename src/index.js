@@ -12,6 +12,8 @@ import authRoutes from './routes/auth.js';
 import profileRoutes from './routes/profile.js';
 import accountRoutes from './routes/account.js';
 import launcherAuthRoutes from './routes/launcher-auth.js';
+import searchRoutes from './routes/search.js';
+import marketRoutes from './routes/market.js';
 import { securityHeaders } from './middleware/require-https.js';
 import { optionalAuthenticate } from './middleware/authenticate.js';
 
@@ -48,6 +50,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/account', accountRoutes);
 app.use('/api/auth/launcher', launcherAuthRoutes);
+app.use('/api/search', searchRoutes);
+app.use('/api/market', marketRoutes);
 
 app.use((error, _req, res, _next) => {
   console.error(error);
