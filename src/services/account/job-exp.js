@@ -29,27 +29,31 @@ export const JOB_EXP_LABELS = {
 };
 
 export function buildJobList(jobsRow, expRow, expBase) {
-  const jobs = [];
-
-  for (const column of JOB_EXP_COLUMNS) {
+  return JOB_EXP_COLUMNS.map((column, index) => {
+    const jobId = index + 1;
+    const job = JOB_EXP_LABELS[column];
     const level = Number(jobsRow?.[column] ?? 0);
+
     if (level <= 0) {
-      continue;
+      return {
+        jobId,
+        job,
+        unlocked: false,
+      };
     }
 
     const experience = Number(expRow?.[column] ?? 0);
     const toNextLevel = expBase.get(level + 1) ?? null;
 
-    jobs.push({
-      job: JOB_EXP_LABELS[column],
+    return {
+      jobId,
+      job,
+      unlocked: true,
       level,
       experience,
       toNextLevel,
-    });
-  }
-
-  jobs.sort((a, b) => b.level - a.level || a.job.localeCompare(b.job));
-  return jobs;
+    };
+  });
 }
 
 export function pickRandomJobWithExp(expRow) {

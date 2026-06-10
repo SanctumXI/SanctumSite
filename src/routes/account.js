@@ -7,6 +7,7 @@ import {
   startLinkChallenge,
   verifyLinkChallenge,
 } from '../services/account/account-linking.js';
+import { getLinkByDiscordId } from '../services/account/discord-link.js';
 import {
   getProtectedAccountDataForDiscord,
   getPublicGameDataForDiscord,
@@ -37,7 +38,13 @@ router.get('/me', requireAuth, async (req, res) => {
 
 router.post('/link/start', requireAuth, async (req, res) => {
   try {
-    await assertDiscordAvailable(req.auth.discordId);
+    const existingLink = await getLinkByDiscordId(req.auth.discordId);
+    if (existingLink) {
+      res.status(400).json({
+        error: 'This Discord account is already linked to a game account. Refresh the profile page to load your character data.',
+      });
+      return;
+    }
 
     const { characterName } = req.body ?? {};
     const { challenge, prompt } = await startLinkChallenge(characterName);

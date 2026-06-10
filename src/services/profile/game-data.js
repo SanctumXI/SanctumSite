@@ -1,4 +1,5 @@
 import { getPublicGameDataForDiscord } from '../account/game-account.js';
+import { getLinkByDiscordId } from '../account/discord-link.js';
 
 const PLACEHOLDER = '—';
 
@@ -33,6 +34,16 @@ export async function getGameData(discordId) {
     };
   } catch (error) {
     console.error('Game data lookup failed:', error.message);
+
+    try {
+      const link = await getLinkByDiscordId(discordId);
+      if (link) {
+        return { ...placeholderGameData(), linked: true };
+      }
+    } catch (linkError) {
+      console.error('Link status lookup failed:', linkError.message);
+    }
+
     return placeholderGameData();
   }
 }

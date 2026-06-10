@@ -71,6 +71,15 @@ async function getAccountRecord(accountId) {
   return rows[0] ?? null;
 }
 
+async function loadOptional(label, loader) {
+  try {
+    return await loader();
+  } catch (error) {
+    console.error(`${label} lookup failed:`, error.message);
+    return null;
+  }
+}
+
 async function getAccountSession(accountId) {
   const rows = await query(
     `SELECT accid, charid
@@ -138,14 +147,14 @@ export async function getPublicGameDataForDiscord(discordId) {
   }
 
   const [statsRow, expRow, jobsRow, expBase] = await Promise.all([
-    getCharacterStats(charRow.charid),
-    getCharacterJobExp(charRow.charid),
-    getCharacterJobs(charRow.charid),
-    getExpBaseByLevel(),
+    loadOptional('char_stats', () => getCharacterStats(charRow.charid)),
+    loadOptional('char_exp', () => getCharacterJobExp(charRow.charid)),
+    loadOptional('char_jobs', () => getCharacterJobs(charRow.charid)),
+    loadOptional('exp_base', () => getExpBaseByLevel()),
   ]);
 
   const character = buildPublicCharacter(charRow, statsRow, expRow);
-  const jobs = buildJobList(jobsRow, expRow, expBase);
+  const jobs = buildJobList(jobsRow, expRow, expBase ?? new Map());
 
   return {
     linked: true,
