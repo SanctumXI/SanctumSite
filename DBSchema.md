@@ -67,3 +67,9 @@ Website tables on `xidb`:
 - char_exp.sch
 - char_exp.geo
 - char_exp.run
+- char_skills.skillid — skill ID (see LSB `SKILLTYPE` enum)
+- char_skills.value — skill level × 10 (e.g. `552` = 55.2)
+- char_points.sandoria_cp, char_points.bastok_cp, char_points.windurst_cp — conquest points (home nation column used for display)
+- char_points.imperial_standing, allied_notes, assault points, zeni_point, therion_ichor, beastman_seal, kindred_seal, cruor, id_tags, traverser_stones
+- char_points.fire_crystals … dark_crystals — crystal counts
+- char_points.guild_fishing … guild_cooking — crafting GP

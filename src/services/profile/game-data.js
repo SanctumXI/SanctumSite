@@ -11,6 +11,8 @@ function placeholderGameData() {
     nation: PLACEHOLDER,
     jobs: [],
     missions: [],
+    skills: [],
+    currencies: [],
     linked: false,
   };
 }
@@ -33,6 +35,8 @@ export async function getGameData(discordId) {
       nation: character.nation ?? PLACEHOLDER,
       jobs: character.jobs ?? [],
       missions: character.missions ?? [],
+      skills: character.skills ?? [],
+      currencies: character.currencies ?? [],
     };
   } catch (error) {
     console.error('Game data lookup failed:', error.message);

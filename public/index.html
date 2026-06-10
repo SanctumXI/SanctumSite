@@ -903,6 +903,127 @@
       transition: width 0.2s ease;
     }
 
+    .skill-categories {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .skill-category-title {
+      margin: 0 0 0.65rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .skill-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 0.65rem;
+    }
+
+    .skill-row {
+      padding: 0.75rem 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.12);
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .skill-row-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .skill-row-name {
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.25;
+    }
+
+    .skill-row-value {
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+
+    .skill-row-progress {
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .skill-row-progress-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), #7dd3fc);
+      min-width: 0;
+      transition: width 0.2s ease;
+    }
+
+    .currency-sections {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .currency-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 0.65rem;
+    }
+
+    .currency-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.75rem 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.12);
+    }
+
+    .currency-row-label {
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.25;
+    }
+
+    .currency-row-value {
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+
+    .currency-subsection {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .currency-subsection-title {
+      margin: 0;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
     .mission-list {
       display: flex;
       flex-direction: column;
@@ -1329,6 +1450,78 @@
       };
     }
 
+    function renderProfileCurrencyList(items) {
+      return `
+        <div class="currency-list">
+          ${items.map((item) => `
+            <div class="currency-row">
+              <span class="currency-row-label">${escapeHtml(item.label)}</span>
+              <span class="currency-row-value">${escapeHtml(formatNumber(item.value))}</span>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function renderProfileCurrencySections(currencies) {
+      if (!currencies?.length) {
+        return '<p class="profile-placeholder-note">No currency data available.</p>';
+      }
+
+      return `
+        <div class="currency-sections">
+          ${currencies.map((section) => {
+            if (section.groups) {
+              return `
+                <section>
+                  <h4 class="skill-category-title">${escapeHtml(section.label)}</h4>
+                  <div class="currency-sections">
+                    ${section.groups.map((group) => `
+                      <div class="currency-subsection">
+                        <h5 class="currency-subsection-title">${escapeHtml(group.label)}</h5>
+                        ${renderProfileCurrencyList(group.items)}
+                      </div>
+                    `).join('')}
+                  </div>
+                </section>
+              `;
+            }
+
+            return renderProfileCurrencyList(section.items);
+          }).join('')}
+        </div>
+      `;
+    }
+
+    function renderProfileSkillCategories(skills) {
+      if (!skills?.length) {
+        return '<p class="profile-placeholder-note">No skill data available.</p>';
+      }
+
+      return `
+        <div class="skill-categories">
+          ${skills.map((category) => `
+            <section>
+              <h4 class="skill-category-title">${escapeHtml(category.category)}</h4>
+              <div class="skill-list">
+                ${category.skills.map((skill) => `
+                  <div class="skill-row">
+                    <div class="skill-row-header">
+                      <span class="skill-row-name">${escapeHtml(skill.name)}</span>
+                      <span class="skill-row-value">${escapeHtml(skill.value)}</span>
+                    </div>
+                    <div class="skill-row-progress" aria-hidden="true">
+                      <div class="skill-row-progress-fill" style="width: ${skill.progressPercent}%"></div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </section>
+          `).join('')}
+        </div>
+      `;
+    }
+
     function renderProfileMissionList(missions) {
       if (!missions?.length) {
         return '<p class="profile-placeholder-note">No mission data available.</p>';
@@ -1412,6 +1605,8 @@
             <button class="profile-tab active" type="button" role="tab" aria-selected="true" data-tab="last-spotted">Last Spotted</button>
             <button class="profile-tab" type="button" role="tab" aria-selected="false" data-tab="jobs">Jobs</button>
             <button class="profile-tab" type="button" role="tab" aria-selected="false" data-tab="missions">Missions</button>
+            <button class="profile-tab" type="button" role="tab" aria-selected="false" data-tab="skills">Skills</button>
+            <button class="profile-tab" type="button" role="tab" aria-selected="false" data-tab="currencies">Currencies</button>
           </div>
           <div class="profile-tab-panel" role="tabpanel" data-panel="last-spotted">
             <div class="profile-stat-grid">
@@ -1434,6 +1629,12 @@
           </div>
           <div class="profile-tab-panel" role="tabpanel" data-panel="missions" hidden>
             ${renderProfileMissionList(game.missions)}
+          </div>
+          <div class="profile-tab-panel" role="tabpanel" data-panel="skills" hidden>
+            ${renderProfileSkillCategories(game.skills)}
+          </div>
+          <div class="profile-tab-panel" role="tabpanel" data-panel="currencies" hidden>
+            ${renderProfileCurrencySections(game.currencies)}
           </div>
         </div>
       `;

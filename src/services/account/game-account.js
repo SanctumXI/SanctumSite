@@ -4,6 +4,8 @@ import { getLinkByDiscordId } from './discord-link.js';
 import { getExpBaseByLevel } from './exp-base.js';
 import { buildJobList, JOB_EXP_COLUMNS } from './job-exp.js';
 import { buildProfileMissions } from './mission-display.js';
+import { buildProfileSkills } from './skill-display.js';
+import { buildProfileCurrencies, CHAR_POINTS_COLUMNS } from './currency-display.js';
 import { formatJobLevel, jobName, nationName } from './job-names.js';
 import { zoneName } from './zone-names.js';
 
@@ -60,6 +62,30 @@ async function getCharacterJobs(charId) {
   );
 
   return rows[0] ?? null;
+}
+
+async function getCharacterPoints(charId) {
+  const columns = CHAR_POINTS_COLUMNS.join(', ');
+  const rows = await query(
+    `SELECT ${columns}
+     FROM char_points
+     WHERE charid = ?
+     LIMIT 1`,
+    [charId],
+  );
+
+  return rows[0] ?? null;
+}
+
+async function getCharacterSkills(charId) {
+  const rows = await query(
+    `SELECT skillid, value
+     FROM char_skills
+     WHERE charid = ?`,
+    [charId],
+  );
+
+  return rows;
 }
 
 async function getCharacterJobExp(charId) {
@@ -164,17 +190,21 @@ export async function getPublicGameDataForDiscord(discordId) {
     return { linked: true, character: null };
   }
 
-  const [statsRow, expRow, jobsRow, expBase, missionsBlob] = await Promise.all([
+  const [statsRow, expRow, jobsRow, expBase, missionsBlob, skillRows, pointsRow] = await Promise.all([
     loadOptional('char_stats', () => getCharacterStats(charRow.charid)),
     loadOptional('char_exp', () => getCharacterJobExp(charRow.charid)),
     loadOptional('char_jobs', () => getCharacterJobs(charRow.charid)),
     loadOptional('exp_base', () => getExpBaseByLevel()),
     loadOptional('chars.missions', () => getCharacterMissions(charRow.charid)),
+    loadOptional('char_skills', () => getCharacterSkills(charRow.charid)),
+    loadOptional('char_points', () => getCharacterPoints(charRow.charid)),
   ]);
 
   const character = buildPublicCharacter(charRow, statsRow, expRow);
   const jobs = buildJobList(jobsRow, expRow, expBase ?? new Map());
   const missions = buildProfileMissions(missionsBlob);
+  const skills = buildProfileSkills(skillRows);
+  const currencies = buildProfileCurrencies(pointsRow, charRow.nation);
 
   return {
     linked: true,
@@ -185,6 +215,8 @@ export async function getPublicGameDataForDiscord(discordId) {
       jobLevel: formatJobLevel(character.stats),
       jobs,
       missions,
+      skills,
+      currencies,
       ...character,
     },
   };
