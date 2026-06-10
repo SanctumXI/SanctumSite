@@ -27,9 +27,16 @@ function loadMissionNames() {
   return missionNames;
 }
 
+const MISSION_NONE = 0xffff;
+
 function isMissionInactive(area, current) {
+  // LSB uses 65535 (NONE) for unstarted nation and Zilart logs.
+  if (current === MISSION_NONE) {
+    return true;
+  }
+
   if (area <= 2) {
-    return current === 0xffff;
+    return false;
   }
 
   return current === 0;
@@ -79,7 +86,7 @@ export function buildProfileMissions(missionsBlob) {
 
   return PROFILE_MISSION_LOGS.map(({ area, key, label }) => {
     const log = byArea.get(area);
-    const current = log?.current ?? (area <= 2 ? 0xffff : 0);
+    const current = log?.current ?? (area <= 3 ? MISSION_NONE : 0);
 
     if (isMissionInactive(area, current)) {
       return {
