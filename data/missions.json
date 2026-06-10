@@ -1,0 +1,956 @@
+{
+  "sandoria": {
+    "0": {
+      "name": "Smash the Orcish Scouts",
+      "wikiTitle": "San d'Oria Mission 1-1"
+    },
+    "1": {
+      "name": "Bat Hunt",
+      "wikiTitle": "San d'Oria Mission 1-2"
+    },
+    "2": {
+      "name": "Save the Children",
+      "wikiTitle": "San d'Oria Mission 1-3"
+    },
+    "3": {
+      "name": "The Rescue Drill",
+      "wikiTitle": "San d'Oria Mission 2-1"
+    },
+    "4": {
+      "name": "The Davoi Report",
+      "wikiTitle": "San d'Oria Mission 2-2"
+    },
+    "5": {
+      "name": "Journey Abroad",
+      "wikiTitle": "San d'Oria Mission 2-3"
+    },
+    "6": {
+      "name": "Journey to Bastok",
+      "wikiTitle": "Journey to Bastok"
+    },
+    "7": {
+      "name": "Journey to Windurst",
+      "wikiTitle": "Journey to Windurst"
+    },
+    "8": {
+      "name": "Journey to Bastok2",
+      "wikiTitle": "Journey to Bastok2"
+    },
+    "9": {
+      "name": "Journey to Windurst2",
+      "wikiTitle": "Journey to Windurst2"
+    },
+    "10": {
+      "name": "Infiltrate Davoi",
+      "wikiTitle": "San d'Oria Mission 3-1"
+    },
+    "11": {
+      "name": "The Crystal Spring",
+      "wikiTitle": "San d'Oria Mission 3-2"
+    },
+    "12": {
+      "name": "Appointment to Jeuno",
+      "wikiTitle": "San d'Oria Mission 3-3"
+    },
+    "13": {
+      "name": "Magicite",
+      "wikiTitle": "San d'Oria Mission 4-1"
+    },
+    "14": {
+      "name": "The Ruins of Fei Yin",
+      "wikiTitle": "San d'Oria Mission 5-1"
+    },
+    "15": {
+      "name": "The Shadow Lord",
+      "wikiTitle": "San d'Oria Mission 5-2"
+    },
+    "16": {
+      "name": "Leautes Last Wishes",
+      "wikiTitle": "San d'Oria Mission 6-1"
+    },
+    "17": {
+      "name": "Ranperres Final Rest",
+      "wikiTitle": "San d'Oria Mission 6-2"
+    },
+    "18": {
+      "name": "Prestige of the Papsque",
+      "wikiTitle": "San d'Oria Mission 7-1"
+    },
+    "19": {
+      "name": "The Secret Weapon",
+      "wikiTitle": "San d'Oria Mission 7-2"
+    },
+    "20": {
+      "name": "Coming of Age",
+      "wikiTitle": "San d'Oria Mission 8-1"
+    },
+    "21": {
+      "name": "Lightbringer",
+      "wikiTitle": "San d'Oria Mission 8-2"
+    },
+    "22": {
+      "name": "Breaking Barriers",
+      "wikiTitle": "San d'Oria Mission 9-1"
+    },
+    "23": {
+      "name": "The Heir to the Light",
+      "wikiTitle": "San d'Oria Mission 9-2"
+    }
+  },
+  "bastok": {
+    "0": {
+      "name": "The Zeruhn Report",
+      "wikiTitle": "Bastok Mission 1-1"
+    },
+    "1": {
+      "name": "Geological Survey",
+      "wikiTitle": "Bastok Mission 1-2"
+    },
+    "2": {
+      "name": "Fetichism",
+      "wikiTitle": "Bastok Mission 1-3"
+    },
+    "3": {
+      "name": "The Crystal Line",
+      "wikiTitle": "Bastok Mission 2-1"
+    },
+    "4": {
+      "name": "Wading Beasts",
+      "wikiTitle": "Bastok Mission 2-2"
+    },
+    "5": {
+      "name": "The Emissary",
+      "wikiTitle": "Bastok Mission 2-3"
+    },
+    "6": {
+      "name": "The Emissary Sandoria",
+      "wikiTitle": "The Emissary Sandoria"
+    },
+    "7": {
+      "name": "The Emissary Windurst",
+      "wikiTitle": "The Emissary Windurst"
+    },
+    "8": {
+      "name": "The Emissary Sandoria2",
+      "wikiTitle": "The Emissary Sandoria2"
+    },
+    "9": {
+      "name": "The Emissary Windurst2",
+      "wikiTitle": "The Emissary Windurst2"
+    },
+    "10": {
+      "name": "The Four Musketeers",
+      "wikiTitle": "Bastok Mission 3-1"
+    },
+    "11": {
+      "name": "To the Forsaken Mines",
+      "wikiTitle": "Bastok Mission 3-2"
+    },
+    "12": {
+      "name": "Jeuno",
+      "wikiTitle": "Bastok Mission 3-3"
+    },
+    "13": {
+      "name": "Magicite",
+      "wikiTitle": "Bastok Mission 4-1"
+    },
+    "14": {
+      "name": "Darkness Rising",
+      "wikiTitle": "Bastok Mission 5-1"
+    },
+    "15": {
+      "name": "Xarcabard Land of Truths",
+      "wikiTitle": "Bastok Mission 5-2"
+    },
+    "16": {
+      "name": "Return of the Talekeeper",
+      "wikiTitle": "Bastok Mission 6-1"
+    },
+    "17": {
+      "name": "The Pirates Cove",
+      "wikiTitle": "Bastok Mission 6-2"
+    },
+    "18": {
+      "name": "The Final Image",
+      "wikiTitle": "Bastok Mission 7-1"
+    },
+    "19": {
+      "name": "On My Way",
+      "wikiTitle": "Bastok Mission 7-2"
+    },
+    "20": {
+      "name": "The Chains That Bind Us",
+      "wikiTitle": "Bastok Mission 8-1"
+    },
+    "21": {
+      "name": "Enter the Talekeeper",
+      "wikiTitle": "Bastok Mission 8-2"
+    },
+    "22": {
+      "name": "The Salt of the Earth",
+      "wikiTitle": "Bastok Mission 9-1"
+    },
+    "23": {
+      "name": "Where Two Paths Converge",
+      "wikiTitle": "Bastok Mission 9-2"
+    }
+  },
+  "windurst": {
+    "0": {
+      "name": "The Horutoto Ruins Experiment",
+      "wikiTitle": "Windurst Mission 1-1"
+    },
+    "1": {
+      "name": "The Heart of the Matter",
+      "wikiTitle": "Windurst Mission 1-2"
+    },
+    "2": {
+      "name": "The Price of Peace",
+      "wikiTitle": "Windurst Mission 1-3"
+    },
+    "3": {
+      "name": "Lost for Words",
+      "wikiTitle": "Windurst Mission 2-1"
+    },
+    "4": {
+      "name": "A Testing Time",
+      "wikiTitle": "Windurst Mission 2-2"
+    },
+    "5": {
+      "name": "The Three Kingdoms",
+      "wikiTitle": "Windurst Mission 2-3"
+    },
+    "6": {
+      "name": "The Three Kingdoms Sandoria",
+      "wikiTitle": "The Three Kingdoms Sandoria"
+    },
+    "7": {
+      "name": "The Three Kingdoms Bastok",
+      "wikiTitle": "The Three Kingdoms Bastok"
+    },
+    "8": {
+      "name": "The Three Kingdoms Sandoria2",
+      "wikiTitle": "The Three Kingdoms Sandoria2"
+    },
+    "9": {
+      "name": "The Three Kingdoms Bastok2",
+      "wikiTitle": "The Three Kingdoms Bastok2"
+    },
+    "10": {
+      "name": "To Each His Own Right",
+      "wikiTitle": "Windurst Mission 3-1"
+    },
+    "11": {
+      "name": "Written in the Stars",
+      "wikiTitle": "Windurst Mission 3-2"
+    },
+    "12": {
+      "name": "A New Journey",
+      "wikiTitle": "Windurst Mission 3-3"
+    },
+    "13": {
+      "name": "Magicite",
+      "wikiTitle": "Windurst Mission 4-1"
+    },
+    "14": {
+      "name": "The Final Seal",
+      "wikiTitle": "Windurst Mission 5-1"
+    },
+    "15": {
+      "name": "The Shadow Awaits",
+      "wikiTitle": "Windurst Mission 5-2"
+    },
+    "16": {
+      "name": "Full Moon Fountain",
+      "wikiTitle": "Windurst Mission 6-1"
+    },
+    "17": {
+      "name": "Saintly Invitation",
+      "wikiTitle": "Windurst Mission 6-2"
+    },
+    "18": {
+      "name": "The Sixth Ministry",
+      "wikiTitle": "Windurst Mission 7-1"
+    },
+    "19": {
+      "name": "Awakening of the Gods",
+      "wikiTitle": "Windurst Mission 7-2"
+    },
+    "20": {
+      "name": "Vain",
+      "wikiTitle": "Windurst Mission 8-1"
+    },
+    "21": {
+      "name": "The Jester Whod Be King",
+      "wikiTitle": "Windurst Mission 8-2"
+    },
+    "22": {
+      "name": "Doll of the Dead",
+      "wikiTitle": "Windurst Mission 9-1"
+    },
+    "23": {
+      "name": "Moon Reading",
+      "wikiTitle": "Windurst Mission 9-2"
+    }
+  },
+  "zilart": {
+    "0": {
+      "name": "The New Frontier",
+      "wikiTitle": "The New Frontier"
+    },
+    "4": {
+      "name": "Welcome Tnorg",
+      "wikiTitle": "Welcome Tnorg"
+    },
+    "6": {
+      "name": "Kazhams Chieftainess",
+      "wikiTitle": "Kazhams Chieftainess"
+    },
+    "8": {
+      "name": "The Temple of Uggalepih",
+      "wikiTitle": "The Temple of Uggalepih"
+    },
+    "10": {
+      "name": "Headstone Pilgrimage",
+      "wikiTitle": "Headstone Pilgrimage"
+    },
+    "12": {
+      "name": "Through the Quicksand Caves",
+      "wikiTitle": "Through the Quicksand Caves"
+    },
+    "14": {
+      "name": "The Chamber of Oracles",
+      "wikiTitle": "The Chamber of Oracles"
+    },
+    "16": {
+      "name": "Return to Delkfutts Tower",
+      "wikiTitle": "Return to Delkfutts Tower"
+    },
+    "18": {
+      "name": "Romaeve",
+      "wikiTitle": "Romaeve"
+    },
+    "20": {
+      "name": "The Temple of Desolation",
+      "wikiTitle": "The Temple of Desolation"
+    },
+    "22": {
+      "name": "The Hall of the Gods",
+      "wikiTitle": "The Hall of the Gods"
+    },
+    "23": {
+      "name": "The Mithra and the Crystal",
+      "wikiTitle": "The Mithra and the Crystal"
+    },
+    "24": {
+      "name": "The Gate of the Gods",
+      "wikiTitle": "The Gate of the Gods"
+    },
+    "26": {
+      "name": "Ark Angels",
+      "wikiTitle": "Ark Angels"
+    },
+    "27": {
+      "name": "The Sealed Shrine",
+      "wikiTitle": "The Sealed Shrine"
+    },
+    "28": {
+      "name": "The Celestial Nexus",
+      "wikiTitle": "The Celestial Nexus"
+    },
+    "30": {
+      "name": "Awakening",
+      "wikiTitle": "Awakening"
+    },
+    "31": {
+      "name": "The Last Verse",
+      "wikiTitle": "The Last Verse"
+    }
+  },
+  "toau": {
+    "0": {
+      "name": "Land of Sacred Serpents",
+      "wikiTitle": "Land of Sacred Serpents"
+    },
+    "1": {
+      "name": "Immortal Sentries",
+      "wikiTitle": "Immortal Sentries"
+    },
+    "2": {
+      "name": "President Salaheem",
+      "wikiTitle": "President Salaheem"
+    },
+    "3": {
+      "name": "Knight of Gold",
+      "wikiTitle": "Knight of Gold"
+    },
+    "4": {
+      "name": "Confessions of Royalty",
+      "wikiTitle": "Confessions of Royalty"
+    },
+    "5": {
+      "name": "Easterly Winds",
+      "wikiTitle": "Easterly Winds"
+    },
+    "6": {
+      "name": "Westerly Winds",
+      "wikiTitle": "Westerly Winds"
+    },
+    "7": {
+      "name": "A Mercenary Life",
+      "wikiTitle": "A Mercenary Life"
+    },
+    "8": {
+      "name": "Undersea Scouting",
+      "wikiTitle": "Undersea Scouting"
+    },
+    "9": {
+      "name": "Astral Waves",
+      "wikiTitle": "Astral Waves"
+    },
+    "10": {
+      "name": "Imperial Schemes",
+      "wikiTitle": "Imperial Schemes"
+    },
+    "11": {
+      "name": "Royal Puppeteer",
+      "wikiTitle": "Royal Puppeteer"
+    },
+    "12": {
+      "name": "Lost Kingdom",
+      "wikiTitle": "Lost Kingdom"
+    },
+    "13": {
+      "name": "The Dolphin Crest",
+      "wikiTitle": "The Dolphin Crest"
+    },
+    "14": {
+      "name": "The Black Coffin",
+      "wikiTitle": "The Black Coffin"
+    },
+    "15": {
+      "name": "Ghosts of the Past",
+      "wikiTitle": "Ghosts of the Past"
+    },
+    "16": {
+      "name": "Guests of the Empire",
+      "wikiTitle": "Guests of the Empire"
+    },
+    "17": {
+      "name": "Passing Glory",
+      "wikiTitle": "Passing Glory"
+    },
+    "18": {
+      "name": "Sweets for the Soul",
+      "wikiTitle": "Sweets for the Soul"
+    },
+    "19": {
+      "name": "Teahouse Tumult",
+      "wikiTitle": "Teahouse Tumult"
+    },
+    "20": {
+      "name": "Finders Keepers",
+      "wikiTitle": "Finders Keepers"
+    },
+    "21": {
+      "name": "Shield of Diplomacy",
+      "wikiTitle": "Shield of Diplomacy"
+    },
+    "22": {
+      "name": "Social Graces",
+      "wikiTitle": "Social Graces"
+    },
+    "23": {
+      "name": "Foiled Ambition",
+      "wikiTitle": "Foiled Ambition"
+    },
+    "24": {
+      "name": "Playing the Part",
+      "wikiTitle": "Playing the Part"
+    },
+    "25": {
+      "name": "Seal of the Serpent",
+      "wikiTitle": "Seal of the Serpent"
+    },
+    "26": {
+      "name": "Misplaced Nobility",
+      "wikiTitle": "Misplaced Nobility"
+    },
+    "27": {
+      "name": "Bastion of Knowledge",
+      "wikiTitle": "Bastion of Knowledge"
+    },
+    "28": {
+      "name": "Puppet in Peril",
+      "wikiTitle": "Puppet in Peril"
+    },
+    "29": {
+      "name": "Prevalence of Pirates",
+      "wikiTitle": "Prevalence of Pirates"
+    },
+    "30": {
+      "name": "Shades of Vengeance",
+      "wikiTitle": "Shades of Vengeance"
+    },
+    "31": {
+      "name": "In the Blood",
+      "wikiTitle": "In the Blood"
+    },
+    "32": {
+      "name": "Sentinels Honor",
+      "wikiTitle": "Sentinels Honor"
+    },
+    "33": {
+      "name": "Testing the Waters",
+      "wikiTitle": "Testing the Waters"
+    },
+    "34": {
+      "name": "Legacy of the Lost",
+      "wikiTitle": "Legacy of the Lost"
+    },
+    "35": {
+      "name": "Gaze of the Saboteur",
+      "wikiTitle": "Gaze of the Saboteur"
+    },
+    "36": {
+      "name": "Path of Blood",
+      "wikiTitle": "Path of Blood"
+    },
+    "37": {
+      "name": "Stirrings of War",
+      "wikiTitle": "Stirrings of War"
+    },
+    "38": {
+      "name": "Allied Rumblings",
+      "wikiTitle": "Allied Rumblings"
+    },
+    "39": {
+      "name": "Unraveling Reason",
+      "wikiTitle": "Unraveling Reason"
+    },
+    "40": {
+      "name": "Light of Judgment",
+      "wikiTitle": "Light of Judgment"
+    },
+    "41": {
+      "name": "Path of Darkness",
+      "wikiTitle": "Path of Darkness"
+    },
+    "42": {
+      "name": "Fangs of the Lion",
+      "wikiTitle": "Fangs of the Lion"
+    },
+    "43": {
+      "name": "Nashmeiras Plea",
+      "wikiTitle": "Nashmeiras Plea"
+    },
+    "44": {
+      "name": "Ragnarok",
+      "wikiTitle": "Ragnarok"
+    },
+    "45": {
+      "name": "Imperial Coronation",
+      "wikiTitle": "Imperial Coronation"
+    },
+    "46": {
+      "name": "The Empress Crowned",
+      "wikiTitle": "The Empress Crowned"
+    },
+    "47": {
+      "name": "Eternal Mercenary",
+      "wikiTitle": "Eternal Mercenary"
+    }
+  },
+  "wotg": {
+    "0": {
+      "name": "Cavernous Maws",
+      "wikiTitle": "Cavernous Maws"
+    },
+    "1": {
+      "name": "Back to the Beginning",
+      "wikiTitle": "Back to the Beginning"
+    },
+    "2": {
+      "name": "Cait Sith",
+      "wikiTitle": "Cait Sith"
+    },
+    "3": {
+      "name": "The Queen of the Dance",
+      "wikiTitle": "The Queen of the Dance"
+    },
+    "4": {
+      "name": "While the Cat Is Away",
+      "wikiTitle": "While the Cat Is Away"
+    },
+    "5": {
+      "name": "A Timeswept Butterfly",
+      "wikiTitle": "A Timeswept Butterfly"
+    },
+    "6": {
+      "name": "Purple the New Black",
+      "wikiTitle": "Purple the New Black"
+    },
+    "7": {
+      "name": "In the Name of the Father",
+      "wikiTitle": "In the Name of the Father"
+    },
+    "8": {
+      "name": "Dancers in Distress",
+      "wikiTitle": "Dancers in Distress"
+    },
+    "9": {
+      "name": "Daughter of a Knight",
+      "wikiTitle": "Daughter of a Knight"
+    },
+    "10": {
+      "name": "A Spoonful of Sugar",
+      "wikiTitle": "A Spoonful of Sugar"
+    },
+    "11": {
+      "name": "Affairs of State",
+      "wikiTitle": "Affairs of State"
+    },
+    "12": {
+      "name": "Borne By the Wind",
+      "wikiTitle": "Borne By the Wind"
+    },
+    "13": {
+      "name": "A Nation on the Brink",
+      "wikiTitle": "A Nation on the Brink"
+    },
+    "14": {
+      "name": "Crossroads of Time",
+      "wikiTitle": "Crossroads of Time"
+    },
+    "15": {
+      "name": "Sandswept Memories",
+      "wikiTitle": "Sandswept Memories"
+    },
+    "16": {
+      "name": "Northland Exposure",
+      "wikiTitle": "Northland Exposure"
+    },
+    "17": {
+      "name": "Traitor in the Midst",
+      "wikiTitle": "Traitor in the Midst"
+    },
+    "18": {
+      "name": "Betrayal at Beaucedine",
+      "wikiTitle": "Betrayal at Beaucedine"
+    },
+    "19": {
+      "name": "On Thin Ice",
+      "wikiTitle": "On Thin Ice"
+    },
+    "20": {
+      "name": "Proof of Valor",
+      "wikiTitle": "Proof of Valor"
+    },
+    "21": {
+      "name": "A Sanguinary Prelude",
+      "wikiTitle": "A Sanguinary Prelude"
+    },
+    "22": {
+      "name": "Dungeons and Dancers",
+      "wikiTitle": "Dungeons and Dancers"
+    },
+    "23": {
+      "name": "Distorter of Time",
+      "wikiTitle": "Distorter of Time"
+    },
+    "24": {
+      "name": "The Will of the World",
+      "wikiTitle": "The Will of the World"
+    },
+    "25": {
+      "name": "Fate in Haze",
+      "wikiTitle": "Fate in Haze"
+    },
+    "26": {
+      "name": "The Scent of Battle",
+      "wikiTitle": "The Scent of Battle"
+    },
+    "27": {
+      "name": "Another World",
+      "wikiTitle": "Another World"
+    },
+    "28": {
+      "name": "A Hawk in Repose",
+      "wikiTitle": "A Hawk in Repose"
+    },
+    "29": {
+      "name": "The Battle of Xarcabard",
+      "wikiTitle": "The Battle of Xarcabard"
+    },
+    "30": {
+      "name": "Prelude to a Storm",
+      "wikiTitle": "Prelude to a Storm"
+    },
+    "31": {
+      "name": "Storms Crescendo",
+      "wikiTitle": "Storms Crescendo"
+    },
+    "32": {
+      "name": "Into the Beasts Maw",
+      "wikiTitle": "Into the Beasts Maw"
+    },
+    "33": {
+      "name": "The Hunter Ensnared",
+      "wikiTitle": "The Hunter Ensnared"
+    },
+    "34": {
+      "name": "Flight of the Lion",
+      "wikiTitle": "Flight of the Lion"
+    },
+    "35": {
+      "name": "Fall of the Hawk",
+      "wikiTitle": "Fall of the Hawk"
+    },
+    "36": {
+      "name": "Darkness Descends",
+      "wikiTitle": "Darkness Descends"
+    },
+    "37": {
+      "name": "Adieu Lilisette",
+      "wikiTitle": "Adieu Lilisette"
+    },
+    "38": {
+      "name": "By the Fading Light",
+      "wikiTitle": "By the Fading Light"
+    },
+    "39": {
+      "name": "Edge of Existence",
+      "wikiTitle": "Edge of Existence"
+    },
+    "40": {
+      "name": "Her Memories",
+      "wikiTitle": "Her Memories"
+    },
+    "41": {
+      "name": "Forget Me Not",
+      "wikiTitle": "Forget Me Not"
+    },
+    "42": {
+      "name": "Pillar of Hope",
+      "wikiTitle": "Pillar of Hope"
+    },
+    "43": {
+      "name": "Glimmer of Life",
+      "wikiTitle": "Glimmer of Life"
+    },
+    "44": {
+      "name": "Time Slips Away",
+      "wikiTitle": "Time Slips Away"
+    },
+    "45": {
+      "name": "When Wills Collide",
+      "wikiTitle": "When Wills Collide"
+    },
+    "46": {
+      "name": "Whispers of Dawn",
+      "wikiTitle": "Whispers of Dawn"
+    },
+    "47": {
+      "name": "A Dreamy Interlude",
+      "wikiTitle": "A Dreamy Interlude"
+    },
+    "48": {
+      "name": "Cait in the Woods",
+      "wikiTitle": "Cait in the Woods"
+    },
+    "49": {
+      "name": "Fork in the Road",
+      "wikiTitle": "Fork in the Road"
+    },
+    "50": {
+      "name": "Maiden of the Dusk",
+      "wikiTitle": "Maiden of the Dusk"
+    },
+    "51": {
+      "name": "Where It All Began",
+      "wikiTitle": "Where It All Began"
+    },
+    "52": {
+      "name": "A Token of Troth",
+      "wikiTitle": "A Token of Troth"
+    },
+    "53": {
+      "name": "Lest We Forget",
+      "wikiTitle": "Lest We Forget"
+    }
+  },
+  "cop": {
+    "101": {
+      "name": "Ancient Flames Beckon",
+      "wikiTitle": "Ancient Flames Beckon"
+    },
+    "110": {
+      "name": "The Rites of Life",
+      "wikiTitle": "The Rites of Life"
+    },
+    "118": {
+      "name": "Below the Arks",
+      "wikiTitle": "Below the Arks"
+    },
+    "128": {
+      "name": "The Mothercrystals",
+      "wikiTitle": "The Mothercrystals"
+    },
+    "138": {
+      "name": "An Invitation West",
+      "wikiTitle": "An Invitation West"
+    },
+    "218": {
+      "name": "The Lost City",
+      "wikiTitle": "The Lost City"
+    },
+    "228": {
+      "name": "Distant Beliefs",
+      "wikiTitle": "Distant Beliefs"
+    },
+    "238": {
+      "name": "An Eternal Melody",
+      "wikiTitle": "An Eternal Melody"
+    },
+    "248": {
+      "name": "Ancient Vows",
+      "wikiTitle": "Ancient Vows"
+    },
+    "257": {
+      "name": "A Transient Dream",
+      "wikiTitle": "A Transient Dream"
+    },
+    "258": {
+      "name": "The Call of the Wyrmking",
+      "wikiTitle": "The Call of the Wyrmking"
+    },
+    "318": {
+      "name": "A Vessel Without a Captain",
+      "wikiTitle": "A Vessel Without a Captain"
+    },
+    "325": {
+      "name": "The Road Forks",
+      "wikiTitle": "The Road Forks"
+    },
+    "335": {
+      "name": "Descendants of a Line Lost",
+      "wikiTitle": "Descendants of a Line Lost"
+    },
+    "341": {
+      "name": "Comedy of Errors Act I",
+      "wikiTitle": "Comedy of Errors Act I"
+    },
+    "350": {
+      "name": "Tending Aged Wounds",
+      "wikiTitle": "Tending Aged Wounds"
+    },
+    "358": {
+      "name": "Darkness Named",
+      "wikiTitle": "Darkness Named"
+    },
+    "368": {
+      "name": "Sheltering Doubt",
+      "wikiTitle": "Sheltering Doubt"
+    },
+    "418": {
+      "name": "The Savage",
+      "wikiTitle": "The Savage"
+    },
+    "428": {
+      "name": "The Secrets of Worship",
+      "wikiTitle": "The Secrets of Worship"
+    },
+    "438": {
+      "name": "Slanderous Utterings",
+      "wikiTitle": "Slanderous Utterings"
+    },
+    "448": {
+      "name": "The Enduring Tumult of War",
+      "wikiTitle": "The Enduring Tumult of War"
+    },
+    "518": {
+      "name": "Desires of Emptiness",
+      "wikiTitle": "Desires of Emptiness"
+    },
+    "530": {
+      "name": "Three Paths",
+      "wikiTitle": "Three Paths"
+    },
+    "543": {
+      "name": "Partners Without Fame",
+      "wikiTitle": "Partners Without Fame"
+    },
+    "552": {
+      "name": "Spiral",
+      "wikiTitle": "Spiral"
+    },
+    "560": {
+      "name": "Where Messengers Gather",
+      "wikiTitle": "Where Messengers Gather"
+    },
+    "568": {
+      "name": "Flames for the Dead",
+      "wikiTitle": "Flames for the Dead"
+    },
+    "578": {
+      "name": "For Whom the Verse Is Sung",
+      "wikiTitle": "For Whom the Verse Is Sung"
+    },
+    "618": {
+      "name": "A Place to Return",
+      "wikiTitle": "A Place to Return"
+    },
+    "628": {
+      "name": "More Questions Than Answers",
+      "wikiTitle": "More Questions Than Answers"
+    },
+    "638": {
+      "name": "One to Be Feared",
+      "wikiTitle": "One to Be Feared"
+    },
+    "648": {
+      "name": "Chains and Bonds",
+      "wikiTitle": "Chains and Bonds"
+    },
+    "718": {
+      "name": "Flames in the Darkness",
+      "wikiTitle": "Flames in the Darkness"
+    },
+    "728": {
+      "name": "Fire in the Eyes of Men",
+      "wikiTitle": "Fire in the Eyes of Men"
+    },
+    "738": {
+      "name": "Calm Before the Storm",
+      "wikiTitle": "Calm Before the Storm"
+    },
+    "748": {
+      "name": "The Warriors Path",
+      "wikiTitle": "The Warriors Path"
+    },
+    "758": {
+      "name": "Emptiness Bleeds",
+      "wikiTitle": "Emptiness Bleeds"
+    },
+    "800": {
+      "name": "Garden of Antiquity",
+      "wikiTitle": "Garden of Antiquity"
+    },
+    "818": {
+      "name": "A Fate Decided",
+      "wikiTitle": "A Fate Decided"
+    },
+    "828": {
+      "name": "When Angels Fall",
+      "wikiTitle": "When Angels Fall"
+    },
+    "840": {
+      "name": "Dawn",
+      "wikiTitle": "Dawn"
+    },
+    "850": {
+      "name": "The Last Verse",
+      "wikiTitle": "The Last Verse"
+    }
+  }
+}

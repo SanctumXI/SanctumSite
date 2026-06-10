@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch-path=src --watch-path=.env src/index.js",
-    "zones:generate": "node scripts/generate-zones.js"
+    "zones:generate": "node scripts/generate-zones.js",
+    "missions:generate": "node scripts/generate-missions.js"
   },
   "engines": {
     "node": ">=20"

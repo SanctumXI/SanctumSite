@@ -10,6 +10,7 @@ function placeholderGameData() {
     zone: PLACEHOLDER,
     nation: PLACEHOLDER,
     jobs: [],
+    missions: [],
     linked: false,
   };
 }
@@ -31,6 +32,7 @@ export async function getGameData(discordId) {
       zone: character.zone ?? PLACEHOLDER,
       nation: character.nation ?? PLACEHOLDER,
       jobs: character.jobs ?? [],
+      missions: character.missions ?? [],
     };
   } catch (error) {
     console.error('Game data lookup failed:', error.message);

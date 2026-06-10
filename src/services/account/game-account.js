@@ -3,6 +3,7 @@ import { assertNeverExpose } from '../../config/field-policy.js';
 import { getLinkByDiscordId } from './discord-link.js';
 import { getExpBaseByLevel } from './exp-base.js';
 import { buildJobList, JOB_EXP_COLUMNS } from './job-exp.js';
+import { buildProfileMissions } from './mission-display.js';
 import { formatJobLevel, jobName, nationName } from './job-names.js';
 import { zoneName } from './zone-names.js';
 
@@ -29,6 +30,23 @@ async function getCharacterStats(charId) {
   );
 
   return rows[0] ?? null;
+}
+
+async function getCharacterMissions(charId) {
+  const rows = await query(
+    `SELECT missions
+     FROM chars
+     WHERE charid = ?
+     LIMIT 1`,
+    [charId],
+  );
+
+  const blob = rows[0]?.missions;
+  if (!blob) {
+    return null;
+  }
+
+  return Buffer.isBuffer(blob) ? blob : Buffer.from(blob);
 }
 
 async function getCharacterJobs(charId) {
@@ -146,15 +164,17 @@ export async function getPublicGameDataForDiscord(discordId) {
     return { linked: true, character: null };
   }
 
-  const [statsRow, expRow, jobsRow, expBase] = await Promise.all([
+  const [statsRow, expRow, jobsRow, expBase, missionsBlob] = await Promise.all([
     loadOptional('char_stats', () => getCharacterStats(charRow.charid)),
     loadOptional('char_exp', () => getCharacterJobExp(charRow.charid)),
     loadOptional('char_jobs', () => getCharacterJobs(charRow.charid)),
     loadOptional('exp_base', () => getExpBaseByLevel()),
+    loadOptional('chars.missions', () => getCharacterMissions(charRow.charid)),
   ]);
 
   const character = buildPublicCharacter(charRow, statsRow, expRow);
   const jobs = buildJobList(jobsRow, expRow, expBase ?? new Map());
+  const missions = buildProfileMissions(missionsBlob);
 
   return {
     linked: true,
@@ -164,6 +184,7 @@ export async function getPublicGameDataForDiscord(discordId) {
       zone: character.zone,
       jobLevel: formatJobLevel(character.stats),
       jobs,
+      missions,
       ...character,
     },
   };
