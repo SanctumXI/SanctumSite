@@ -798,6 +798,93 @@
       margin-top: 1rem;
     }
 
+    .profile-section-title {
+      margin: 0 0 0.85rem;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.01em;
+      text-transform: none;
+    }
+
+    .profile-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.5rem;
+    }
+
+    .profile-tab {
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      padding: 0.45rem 0.85rem;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+
+    .profile-tab:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .profile-tab.active {
+      color: var(--text);
+      border-color: var(--border);
+      background: rgba(0, 0, 0, 0.18);
+    }
+
+    .profile-tab-panel[hidden] {
+      display: none;
+    }
+
+    .job-card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .job-card {
+      padding: 0.9rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.14);
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .job-card-header {
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+    }
+
+    .job-card-level {
+      font-size: 0.92rem;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .job-card-stat {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+
+    .job-card-stat span {
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-weight: 700;
+    }
+
     @media (max-width: 560px) {
       .profile-hero {
         flex-direction: column;
@@ -956,6 +1043,13 @@
     let searchSuggestTimer = null;
     let searchSuggestRequest = 0;
     let profileMenuOpen = false;
+
+    function formatNumber(value) {
+      if (value == null || Number.isNaN(Number(value))) {
+        return '—';
+      }
+      return Number(value).toLocaleString('en-US');
+    }
 
     function escapeHtml(text) {
       return String(text)
@@ -1136,7 +1230,7 @@
     }
 
     function renderProfileHero(profile) {
-      const { discord, game, isOwner } = profile;
+      const { discord, isOwner } = profile;
       const handle = discord.username
         ? `<div class="profile-handle">@${escapeHtml(discord.username)}</div>`
         : (!isOwner ? '<div class="profile-private-note">Discord username is private</div>' : '');
@@ -1145,8 +1239,7 @@
         <div class="profile-hero">
           <div class="profile-avatar">${profileAvatarMarkup(discord.avatarUrl)}</div>
           <div class="profile-hero-text">
-            <h2>${escapeHtml(game.characterName)}</h2>
-            <div class="muted">${escapeHtml(discord.globalName)}</div>
+            <h2>${escapeHtml(discord.globalName)}</h2>
             ${handle}
             ${!discord.avatarUrl && !isOwner ? '<div class="profile-private-note">Discord avatar is private</div>' : ''}
           </div>
@@ -1154,7 +1247,32 @@
       `;
     }
 
-    function renderProfileGameStats(profile) {
+    function renderProfileJobCards(jobs) {
+      if (!jobs?.length) {
+        return '<p class="profile-placeholder-note">No job data available.</p>';
+      }
+
+      return `
+        <div class="job-card-grid">
+          ${jobs.map((job) => `
+            <div class="job-card">
+              <div class="job-card-header">${escapeHtml(job.job)}</div>
+              <div class="job-card-level">Lv. ${escapeHtml(String(job.level))}</div>
+              <div class="job-card-stat">
+                <span>EXP</span>
+                ${escapeHtml(formatNumber(job.experience))}
+              </div>
+              <div class="job-card-stat">
+                <span>To Next Level</span>
+                ${escapeHtml(job.toNextLevel == null ? 'Max' : formatNumber(job.toNextLevel))}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function renderProfileCharacterSection(profile) {
       const { game, isOwner } = profile;
       const unlinkedNote = !game.linked && isOwner
         ? '<p class="profile-placeholder-note">Link your character to show game stats on your profile.</p>'
@@ -1163,30 +1281,68 @@
         ? '<p class="profile-placeholder-note">This player has not linked a character.</p>'
         : '';
 
+      if (!game.linked) {
+        return `
+          <div class="profile-section">
+            ${unlinkedNote}${publicUnlinkedNote}
+          </div>
+        `;
+      }
+
+      const characterTitle = game.characterName && game.characterName !== '—'
+        ? escapeHtml(game.characterName)
+        : 'Character';
+
       return `
         <div class="profile-section">
-          <h3>Character</h3>
-          <div class="profile-stat-grid">
-            <div class="profile-stat">
-              <span class="profile-stat-label">Job &amp; Level</span>
-              <span class="profile-stat-value">${escapeHtml(game.job)} / ${escapeHtml(String(game.level))}</span>
-            </div>
-            <div class="profile-stat">
-              <span class="profile-stat-label">Zone</span>
-              <span class="profile-stat-value">${escapeHtml(game.zone)}</span>
-            </div>
-            <div class="profile-stat">
-              <span class="profile-stat-label">Nation</span>
-              <span class="profile-stat-value">${escapeHtml(game.nation)}</span>
-            </div>
-            <div class="profile-stat">
-              <span class="profile-stat-label">Character</span>
-              <span class="profile-stat-value">${escapeHtml(game.characterName)}</span>
+          <h3 class="profile-section-title">${characterTitle}</h3>
+          <div class="profile-tabs" role="tablist" aria-label="Character details">
+            <button class="profile-tab active" type="button" role="tab" aria-selected="true" data-tab="last-spotted">Last Spotted</button>
+            <button class="profile-tab" type="button" role="tab" aria-selected="false" data-tab="jobs">Jobs</button>
+          </div>
+          <div class="profile-tab-panel" role="tabpanel" data-panel="last-spotted">
+            <div class="profile-stat-grid">
+              <div class="profile-stat">
+                <span class="profile-stat-label">Job &amp; Level</span>
+                <span class="profile-stat-value">${escapeHtml(game.jobLevel)}</span>
+              </div>
+              <div class="profile-stat">
+                <span class="profile-stat-label">Zone</span>
+                <span class="profile-stat-value">${escapeHtml(game.zone)}</span>
+              </div>
+              <div class="profile-stat">
+                <span class="profile-stat-label">Nation</span>
+                <span class="profile-stat-value">${escapeHtml(game.nation)}</span>
+              </div>
             </div>
           </div>
-          ${unlinkedNote}${publicUnlinkedNote}
+          <div class="profile-tab-panel" role="tabpanel" data-panel="jobs" hidden>
+            ${renderProfileJobCards(game.jobs)}
+          </div>
         </div>
       `;
+    }
+
+    function bindProfileTabs() {
+      const tablist = content.querySelector('.profile-tabs');
+      if (!tablist) return;
+
+      const tabs = [...tablist.querySelectorAll('.profile-tab')];
+      const panels = [...content.querySelectorAll('.profile-tab-panel')];
+
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const target = tab.dataset.tab;
+          tabs.forEach((button) => {
+            const active = button.dataset.tab === target;
+            button.classList.toggle('active', active);
+            button.setAttribute('aria-selected', active ? 'true' : 'false');
+          });
+          panels.forEach((panel) => {
+            panel.hidden = panel.dataset.panel !== target;
+          });
+        });
+      });
     }
 
     function renderProfileLinkSection(profile) {
@@ -1369,41 +1525,34 @@
     }
 
     function renderOwnProfilePage(profile) {
-      status.hidden = false;
-      status.className = 'muted';
-      status.textContent = 'Your profile';
+      status.hidden = true;
       input.value = '';
 
       content.innerHTML = `
         <div class="profile-page profile-page--own">
           ${renderProfileHero(profile)}
           <div class="profile-body">
-            ${renderProfileGameStats(profile)}
+            ${renderProfileCharacterSection(profile)}
             ${renderProfileLinkSection(profile)}
             ${renderProfilePrivacyControls(profile)}
           </div>
         </div>
       `;
 
+      bindProfileTabs();
       bindProfilePrivacyControls();
       bindProfileLinkButton();
     }
 
     function renderPublicProfilePage(profile) {
-      status.hidden = false;
-      status.className = 'muted';
-      status.textContent = 'Player profile';
+      status.hidden = true;
       input.value = '';
-
-      const title = profile.game?.linked && profile.game.characterName !== '—'
-        ? profile.game.characterName
-        : profile.discord.globalName;
 
       content.innerHTML = `
         <div class="profile-page profile-page--public">
           ${renderProfileHero(profile)}
           <div class="profile-body">
-            ${renderProfileGameStats(profile)}
+            ${renderProfileCharacterSection(profile)}
             <div class="profile-actions">
               <button class="btn-secondary" type="button" id="profile-back">Back</button>
             </div>
@@ -1411,7 +1560,7 @@
         </div>
       `;
 
-      status.textContent = title ? `Profile: ${title}` : 'Player profile';
+      bindProfileTabs();
 
       content.querySelector('#profile-back')?.addEventListener('click', () => {
         navigateTo(new URLSearchParams());

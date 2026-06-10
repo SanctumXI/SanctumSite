@@ -1,8 +1,10 @@
 import { Router } from 'express';
 import { isDiscordAuthConfigured } from '../config/auth.js';
 import { isAllowedLauncherRedirectUri } from '../config/launcher.js';
+import { requireAuth } from '../middleware/require-auth.js';
 import { requireSecureTransport } from '../middleware/require-https.js';
 import { upsertDiscordUser, getDiscordUser } from '../services/account/discord-user.js';
+import { getProtectedAccountDataForDiscord } from '../services/account/game-account.js';
 import {
   exchangeDiscordCodeWithPkce,
   fetchDiscordUser,
@@ -110,6 +112,24 @@ router.post('/refresh', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Could not refresh launcher token' });
+  }
+});
+
+router.get('/game-login', requireAuth, async (req, res) => {
+  try {
+    const data = await getProtectedAccountDataForDiscord(req.auth.discordId);
+    if (!data.linked || !data.account) {
+      res.status(404).json({ error: 'No game account linked to this Discord user' });
+      return;
+    }
+
+    res.json({
+      accountId: data.account.id,
+      login: data.account.login,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Could not resolve game account for login' });
   }
 });
 

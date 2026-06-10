@@ -118,7 +118,65 @@ Content-Type: application/json
 
 Returns a new `accessToken` and `refreshToken`. Old refresh tokens are single-use.
 
+### 6. Game login via xi_connect (JWT)
+
+After Discord login, the launcher can authenticate to the game connect server without a password by sending the Sanctum access token to `xi_connect` (command `0x35` / `LOGIN_ATTEMPT_JWT`). The connect server validates the token against the Sanctum website configured in `network.JWT_AUTH_HOST`.
+
+**xiloader JSON request (port 54231):**
+
+```json
+{
+  "command": 53,
+  "access_token": "eyJ...",
+  "version": [2, 1, 0]
+}
+```
+
+**Connect server setting** (`settings/network.lua` override):
+
+```lua
+JWT_AUTH_HOST = 'https://your-sanctum-site.example.com',
+```
+
+Leave empty to disable JWT login. For local dev: `http://127.0.0.1:3000`.
+
+**Sanctum API (called by xi_connect):**
+
+```http
+GET /api/auth/launcher/game-login
+Authorization: Bearer eyJ...
+```
+
+**Response:**
+
+```json
+{
+  "accountId": 1234,
+  "login": "PlayerName"
+}
+```
+
+Returns `404` if the Discord user has no linked game account. TOTP on the game account is skipped for JWT login (Discord + link is treated as SSO).
+
 ## API endpoints
+
+### Game login (xi_connect)
+
+Used by `xi_connect` when validating JWT login. Requires Bearer token; returns linked game account id.
+
+```http
+GET /api/auth/launcher/game-login
+Authorization: Bearer <token>
+```
+
+**Response:**
+
+```json
+{
+  "accountId": 1234,
+  "login": "PlayerName"
+}
+```
 
 ### Public character data (authenticated owner)
 

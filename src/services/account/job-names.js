@@ -15,6 +15,24 @@ export function jobName(jobId) {
   return JOB_NAMES[jobId] ?? '—';
 }
 
+export function formatJobLevel(stats) {
+  if (!stats) {
+    return '—';
+  }
+
+  const { mlvl, slvl, mainJob, subJob } = stats;
+  if (mlvl == null || !mainJob || mainJob === '—') {
+    return '—';
+  }
+
+  const main = `${mlvl}${mainJob}`;
+  if (!subJob || subJob === '—' || slvl == null) {
+    return main;
+  }
+
+  return `${main}/${slvl}${subJob}`;
+}
+
 export function nationName(nationId) {
   return NATION_NAMES[nationId] ?? '—';
 }

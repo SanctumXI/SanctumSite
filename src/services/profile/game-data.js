@@ -5,10 +5,10 @@ const PLACEHOLDER = '—';
 function placeholderGameData() {
   return {
     characterName: PLACEHOLDER,
-    job: PLACEHOLDER,
-    level: PLACEHOLDER,
+    jobLevel: PLACEHOLDER,
     zone: PLACEHOLDER,
     nation: PLACEHOLDER,
+    jobs: [],
     linked: false,
   };
 }
@@ -26,10 +26,10 @@ export async function getGameData(discordId) {
     return {
       linked: true,
       characterName: character.characterName ?? character.charname ?? PLACEHOLDER,
-      job: character.job ?? PLACEHOLDER,
-      level: character.level ?? PLACEHOLDER,
+      jobLevel: character.jobLevel ?? PLACEHOLDER,
       zone: character.zone ?? PLACEHOLDER,
       nation: character.nation ?? PLACEHOLDER,
+      jobs: character.jobs ?? [],
     };
   } catch (error) {
     console.error('Game data lookup failed:', error.message);

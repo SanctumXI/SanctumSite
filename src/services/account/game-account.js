@@ -1,8 +1,9 @@
 import { query } from '../../config/database.js';
 import { assertNeverExpose } from '../../config/field-policy.js';
 import { getLinkByDiscordId } from './discord-link.js';
-import { JOB_EXP_COLUMNS } from './job-exp.js';
-import { jobName, nationName } from './job-names.js';
+import { getExpBaseByLevel } from './exp-base.js';
+import { buildJobList, JOB_EXP_COLUMNS } from './job-exp.js';
+import { formatJobLevel, jobName, nationName } from './job-names.js';
 import { zoneName } from './zone-names.js';
 
 async function getPrimaryCharacter(accountId) {
@@ -22,6 +23,19 @@ async function getCharacterStats(charId) {
   const rows = await query(
     `SELECT charid, hp, mp, mjob, sjob, mlvl, slvl
      FROM char_stats
+     WHERE charid = ?
+     LIMIT 1`,
+    [charId],
+  );
+
+  return rows[0] ?? null;
+}
+
+async function getCharacterJobs(charId) {
+  const columns = JOB_EXP_COLUMNS.join(', ');
+  const rows = await query(
+    `SELECT charid, ${columns}
+     FROM char_jobs
      WHERE charid = ?
      LIMIT 1`,
     [charId],
@@ -123,12 +137,15 @@ export async function getPublicGameDataForDiscord(discordId) {
     return { linked: true, character: null };
   }
 
-  const [statsRow, expRow] = await Promise.all([
+  const [statsRow, expRow, jobsRow, expBase] = await Promise.all([
     getCharacterStats(charRow.charid),
     getCharacterJobExp(charRow.charid),
+    getCharacterJobs(charRow.charid),
+    getExpBaseByLevel(),
   ]);
 
   const character = buildPublicCharacter(charRow, statsRow, expRow);
+  const jobs = buildJobList(jobsRow, expRow, expBase);
 
   return {
     linked: true,
@@ -136,8 +153,8 @@ export async function getPublicGameDataForDiscord(discordId) {
       characterName: character.charname,
       nation: character.nation,
       zone: character.zone,
-      job: `${character.stats.mainJob}${character.stats.subJob !== '—' ? ` / ${character.stats.subJob}` : ''}`,
-      level: `${character.stats.mlvl ?? '—'}${character.stats.slvl ? ` / ${character.stats.slvl}` : ''}`,
+      jobLevel: formatJobLevel(character.stats),
+      jobs,
       ...character,
     },
   };
