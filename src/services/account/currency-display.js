@@ -74,27 +74,20 @@ function mapCurrencyItems(pointsRow, nationId, entries) {
 }
 
 export function buildProfileCurrencies(pointsRow, nationId) {
+  return mapCurrencyItems(pointsRow, nationId, GENERAL_CURRENCIES);
+}
+
+export function buildProfileCrafting(pointsRow, nationId) {
   return [
     {
-      key: 'general',
-      label: null,
-      items: mapCurrencyItems(pointsRow, nationId, GENERAL_CURRENCIES),
+      key: 'crystals',
+      label: 'Crystals',
+      items: mapCurrencyItems(pointsRow, nationId, CRYSTAL_CURRENCIES),
     },
     {
-      key: 'crafting',
-      label: 'Crafting',
-      groups: [
-        {
-          key: 'crystals',
-          label: 'Crystals',
-          items: mapCurrencyItems(pointsRow, nationId, CRYSTAL_CURRENCIES),
-        },
-        {
-          key: 'gp',
-          label: 'GP',
-          items: mapCurrencyItems(pointsRow, nationId, GP_CURRENCIES),
-        },
-      ],
+      key: 'gp',
+      label: 'GP',
+      items: mapCurrencyItems(pointsRow, nationId, GP_CURRENCIES),
     },
   ];
 }

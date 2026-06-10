@@ -841,6 +841,39 @@
       display: none;
     }
 
+    .profile-sub-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .profile-sub-tab {
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .profile-sub-tab:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .profile-sub-tab.active {
+      color: var(--text);
+      border-color: var(--border);
+      background: rgba(0, 0, 0, 0.18);
+    }
+
+    .profile-sub-tab-panel[hidden] {
+      display: none;
+    }
+
     .job-card-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
@@ -1451,6 +1484,10 @@
     }
 
     function renderProfileCurrencyList(items) {
+      if (!items?.length) {
+        return '<p class="profile-placeholder-note">No currency data available.</p>';
+      }
+
       return `
         <div class="currency-list">
           ${items.map((item) => `
@@ -1463,62 +1500,68 @@
       `;
     }
 
-    function renderProfileCurrencySections(currencies) {
-      if (!currencies?.length) {
-        return '<p class="profile-placeholder-note">No currency data available.</p>';
+    function renderProfileCraftingSections(crafting) {
+      if (!crafting?.length) {
+        return '<p class="profile-placeholder-note">No crafting data available.</p>';
       }
 
       return `
         <div class="currency-sections">
-          ${currencies.map((section) => {
-            if (section.groups) {
-              return `
-                <section>
-                  <h4 class="skill-category-title">${escapeHtml(section.label)}</h4>
-                  <div class="currency-sections">
-                    ${section.groups.map((group) => `
-                      <div class="currency-subsection">
-                        <h5 class="currency-subsection-title">${escapeHtml(group.label)}</h5>
-                        ${renderProfileCurrencyList(group.items)}
-                      </div>
-                    `).join('')}
-                  </div>
-                </section>
-              `;
-            }
-
-            return renderProfileCurrencyList(section.items);
-          }).join('')}
+          ${crafting.map((group) => `
+            <section class="currency-subsection">
+              <h4 class="skill-category-title">${escapeHtml(group.label)}</h4>
+              ${renderProfileCurrencyList(group.items)}
+            </section>
+          `).join('')}
         </div>
       `;
     }
 
-    function renderProfileSkillCategories(skills) {
+    function renderProfileSkillList(category) {
+      return `
+        <div class="skill-list">
+          ${category.skills.map((skill) => `
+            <div class="skill-row">
+              <div class="skill-row-header">
+                <span class="skill-row-name">${escapeHtml(skill.name)}</span>
+                <span class="skill-row-value">${escapeHtml(skill.value)}</span>
+              </div>
+              <div class="skill-row-progress" aria-hidden="true">
+                <div class="skill-row-progress-fill" style="width: ${skill.progressPercent}%"></div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function renderProfileSkillTabs(skills) {
       if (!skills?.length) {
         return '<p class="profile-placeholder-note">No skill data available.</p>';
       }
 
       return `
-        <div class="skill-categories">
-          ${skills.map((category) => `
-            <section>
-              <h4 class="skill-category-title">${escapeHtml(category.category)}</h4>
-              <div class="skill-list">
-                ${category.skills.map((skill) => `
-                  <div class="skill-row">
-                    <div class="skill-row-header">
-                      <span class="skill-row-name">${escapeHtml(skill.name)}</span>
-                      <span class="skill-row-value">${escapeHtml(skill.value)}</span>
-                    </div>
-                    <div class="skill-row-progress" aria-hidden="true">
-                      <div class="skill-row-progress-fill" style="width: ${skill.progressPercent}%"></div>
-                    </div>
-                  </div>
-                `).join('')}
-              </div>
-            </section>
+        <div class="profile-sub-tabs" role="tablist" aria-label="Skill categories">
+          ${skills.map((category, index) => `
+            <button
+              class="profile-sub-tab ${index === 0 ? 'active' : ''}"
+              type="button"
+              role="tab"
+              aria-selected="${index === 0 ? 'true' : 'false'}"
+              data-sub-tab="${escapeHtml(category.key)}"
+            >${escapeHtml(category.category)}</button>
           `).join('')}
         </div>
+        ${skills.map((category, index) => `
+          <div
+            class="profile-sub-tab-panel"
+            role="tabpanel"
+            data-sub-panel="${escapeHtml(category.key)}"
+            ${index === 0 ? '' : 'hidden'}
+          >
+            ${renderProfileSkillList(category)}
+          </div>
+        `).join('')}
       `;
     }
 
@@ -1607,6 +1650,7 @@
             <button class="profile-tab" type="button" role="tab" aria-selected="false" data-tab="missions">Missions</button>
             <button class="profile-tab" type="button" role="tab" aria-selected="false" data-tab="skills">Skills</button>
             <button class="profile-tab" type="button" role="tab" aria-selected="false" data-tab="currencies">Currencies</button>
+            <button class="profile-tab" type="button" role="tab" aria-selected="false" data-tab="crafting">Crafting</button>
           </div>
           <div class="profile-tab-panel" role="tabpanel" data-panel="last-spotted">
             <div class="profile-stat-grid">
@@ -1631,13 +1675,38 @@
             ${renderProfileMissionList(game.missions)}
           </div>
           <div class="profile-tab-panel" role="tabpanel" data-panel="skills" hidden>
-            ${renderProfileSkillCategories(game.skills)}
+            ${renderProfileSkillTabs(game.skills)}
           </div>
           <div class="profile-tab-panel" role="tabpanel" data-panel="currencies" hidden>
-            ${renderProfileCurrencySections(game.currencies)}
+            ${renderProfileCurrencyList(game.currencies)}
+          </div>
+          <div class="profile-tab-panel" role="tabpanel" data-panel="crafting" hidden>
+            ${renderProfileCraftingSections(game.crafting)}
           </div>
         </div>
       `;
+    }
+
+    function bindProfileSubTabs(root) {
+      root.querySelectorAll('.profile-sub-tabs').forEach((tablist) => {
+        const container = tablist.parentElement;
+        const tabs = [...tablist.querySelectorAll('.profile-sub-tab')];
+        const panels = [...container.querySelectorAll('.profile-sub-tab-panel')];
+
+        tabs.forEach((tab) => {
+          tab.addEventListener('click', () => {
+            const target = tab.dataset.subTab;
+            tabs.forEach((button) => {
+              const active = button.dataset.subTab === target;
+              button.classList.toggle('active', active);
+              button.setAttribute('aria-selected', active ? 'true' : 'false');
+            });
+            panels.forEach((panel) => {
+              panel.hidden = panel.dataset.subPanel !== target;
+            });
+          });
+        });
+      });
     }
 
     function bindProfileTabs() {
@@ -1660,6 +1729,8 @@
           });
         });
       });
+
+      bindProfileSubTabs(tablist.closest('.profile-section') ?? content);
     }
 
     function renderProfileLinkSection(profile) {

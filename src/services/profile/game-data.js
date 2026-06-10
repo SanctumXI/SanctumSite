@@ -13,6 +13,7 @@ function placeholderGameData() {
     missions: [],
     skills: [],
     currencies: [],
+    crafting: [],
     linked: false,
   };
 }
@@ -37,6 +38,7 @@ export async function getGameData(discordId) {
       missions: character.missions ?? [],
       skills: character.skills ?? [],
       currencies: character.currencies ?? [],
+      crafting: character.crafting ?? [],
     };
   } catch (error) {
     console.error('Game data lookup failed:', error.message);

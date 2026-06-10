@@ -5,7 +5,7 @@ import { getExpBaseByLevel } from './exp-base.js';
 import { buildJobList, JOB_EXP_COLUMNS } from './job-exp.js';
 import { buildProfileMissions } from './mission-display.js';
 import { buildProfileSkills } from './skill-display.js';
-import { buildProfileCurrencies, CHAR_POINTS_COLUMNS } from './currency-display.js';
+import { buildProfileCurrencies, buildProfileCrafting, CHAR_POINTS_COLUMNS } from './currency-display.js';
 import { formatJobLevel, jobName, nationName } from './job-names.js';
 import { zoneName } from './zone-names.js';
 
@@ -205,6 +205,7 @@ export async function getPublicGameDataForDiscord(discordId) {
   const missions = buildProfileMissions(missionsBlob);
   const skills = buildProfileSkills(skillRows);
   const currencies = buildProfileCurrencies(pointsRow, charRow.nation);
+  const crafting = buildProfileCrafting(pointsRow, charRow.nation);
 
   return {
     linked: true,
@@ -217,6 +218,7 @@ export async function getPublicGameDataForDiscord(discordId) {
       missions,
       skills,
       currencies,
+      crafting,
       ...character,
     },
   };
