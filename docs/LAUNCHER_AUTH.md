@@ -31,6 +31,30 @@ sanctumxi://auth/callback
 
 Set `LAUNCHER_REDIRECT_URI` in the website `.env` to match.
 
+## Sanctum Launcher vs SanctumLoader (boot loader)
+
+| App | Role |
+|-----|------|
+| **Sanctum Launcher** (desktop) | Discord OAuth (PKCE), stores refresh token, exposes local session API |
+| **SanctumLoader** (`SanctumLoader.exe`) | FFXI boot loader; gets JWT from launcher session or stored token; sends `0x35` to xi_connect |
+
+SanctumLoader does **not** require Discord in the boot loader. On **Launch Game**, the Sanctum Launcher writes:
+
+`config/SanctumLoader/SanctumLoader.json` (under the Ashita install root)
+
+```json
+{
+  "server": "login.yourserver.com",
+  "access_token": "eyJ...",
+  "apiBase": "https://your-sanctum-site.example.com",
+  "hide": true
+}
+```
+
+SanctumLoader loads this file automatically — Ashita boot profiles do not need a `--json` argument.
+
+Optional fallback: `launcherSessionUrl` in `sanctum.json` for a local HTTP session API. Set `allowDiscordLogin: true` only if the boot loader should open Discord itself.
+
 ## Launcher login flow (PKCE)
 
 ```mermaid

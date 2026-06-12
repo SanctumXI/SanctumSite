@@ -70,7 +70,10 @@ router.post('/token', async (req, res) => {
     }
 
     const payload = await tokenResponse(sessionUser, refreshToken);
-    res.json(payload);
+    res.json({
+      ...payload,
+      discordAccessToken: token.access_token,
+    });
   } catch (error) {
     console.error(error);
     res.status(401).json({ error: 'Discord authentication failed' });
