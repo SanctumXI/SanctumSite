@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "updated": "2026-06-23",
+  "addons": [
+    {
+      "name": "GlamourUI",
+      "description": "A UI overhaul framework allowing for total customization of the game user interface",
+      "type": "addon",
+      "repo": "https://github.com/bangplaysgames/glamourui"
+    },
+    {
+      "name": "AutoRA",
+      "descriptions": "Allow for auto-attack style ranged attacks.",
+      "type": "addon",
+      "repo": "https://github.com/bangplaysgames/AutoRA-Ashitav4"
+    },
+    {
+      "name": "ButterFeet",
+      "description": "Removes the animation lock from all animations.",
+      "type": "addon",
+      "repo": "https://github.com/bangplaysgames/ButterFeet"
+    },
+    {
+      "name": "ChickenDance",
+      "description": "Mount Roulette for all acquired mounts.",
+      "type": "addon",
+      "repo": "https://github.com/bangplaysgames/ChickenDance"
+    },
+    {
+      "name": "Balloon",
+      "description": "Adds text balloons to all NPC messages.",
+      "type": "addon",
+      "repo": "https://github.com/onimitch/ffxi-balloon-ashitav4",
+      "release": "irregular"
+    },
+    {
+      "name": "ZoneLines",
+      "description": "Adds in-game zone lines.",
+      "type": "addon",
+      "repo": "https://github.com/SQLCommit/ZoneLines",
+      "release": "irregular"
+    },
+    {
+      "name": "boussole",
+      "description": "Adds a compass and minimap to the game.",
+      "type": "addon",
+      "repo": "https://github.com/loonsies/boussole",
+      "release": "irregular"
+    },
+    {
+      "name": "FancyChat",
+      "description": "A chat window replacement.",
+      "type": "addon",
+      "repo": "https://github.com/ariel-logos/FancyChat",
+      "release": "irregular"
+    },
+    {
+      "name": "hticks",
+      "description": "Adds a healing tick timer to the game.",
+      "type": "addon",
+      "repo": "https://github.com/m4thmatic/hticks",
+      "release": "irregular"
+    },
+    {
+      "name": "RollTracker",
+      "description": "Reworked Corsair roll messages.",
+      "type": "addon",
+      "repo": "https://github.com/Sippius/Ashita-v4-addons",
+      "release": "irregular"
+    },
+    {
+      "name": "XIUI",
+      "description": "A UI overhaul framework allowing for total customization of the game user interface",
+      "type": "addon",
+      "repo": "https://github.com/tirem/XIUI",
+      "release": "irregular"
+    }
+  ]
+}
