@@ -12,6 +12,7 @@ import authRoutes from './routes/auth.js';
 import profileRoutes from './routes/profile.js';
 import accountRoutes from './routes/account.js';
 import launcherAuthRoutes from './routes/launcher-auth.js';
+import launcherBanlistRoutes from './routes/launcher-banlist.js';
 import searchRoutes from './routes/search.js';
 import marketRoutes from './routes/market.js';
 import { securityHeaders } from './middleware/require-https.js';
@@ -50,6 +51,10 @@ app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/account', accountRoutes);
 app.use('/api/auth/launcher', launcherAuthRoutes);
+
+// Unlisted ban-list endpoint. Obscure path, queried only by the launcher.
+const banlistRoute = process.env.LAUNCHER_BANLIST_ROUTE ?? '/api/launcher/integrity/3f9a1c7d';
+app.use(banlistRoute, launcherBanlistRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/market', marketRoutes);
 

@@ -1,0 +1,90 @@
+{
+  "version": 1,
+  "updated": "2026-06-23",
+  "banned": [
+    {
+      "name": "ahgo",
+      "type": "addon",
+      "match": ["ahgo"],
+      "sha256": [],
+      "reason": "Allows for accessing the auction house from unintended areas."
+    },
+    {
+      "name": "gateway",
+      "type": "addon",
+      "match": ["gateway"],
+      "sha256": [],
+      "reason": "Bypasses requirements for opening doors."
+    },
+    {
+      "name": "mapdot",
+      "type": "addon",
+      "match": ["mapdot"],
+      "sha256": [],
+      "reason": ""
+    },
+    {
+      "name": "nokb",
+      "type": "addon",
+      "match": ["nokb"],
+      "sha256": [],
+      "reason": "Removes Knockback from the game, allowing for unintended combat advantages."
+    },
+    {
+      "name": "nomad",
+      "type": "addon",
+      "match": ["nomad"],
+      "sha256": [],
+      "reason": "Allows accessing nomad moogles from unintended areas."
+    },
+    {
+      "name": "onevent",
+      "type": "addon",
+      "match": ["onevent"],
+      "sha256": [],
+      "reason": "Allows for unauthorized levels of automation."
+    },
+    {
+      "name": "paranormal",
+      "type": "addon",
+      "match": ["paranormal"],
+      "sha256": [],
+      "reason": "Allows execution of actions while dead."
+    },
+    {
+      "name": "peekaboo",
+      "type": "addon",
+      "match": ["peekaboo"],
+      "sha256": [],
+      "reason": "Forces entities that should be hidden to be visible."
+    },
+    {
+      "name": "skeletonkey",
+      "type": "addon",
+      "match": ["skeletonkey"],
+      "sha256": [],
+      "reason": "Allows for bypassing of doors and other locked objects."
+    },
+    {
+      "name": "watchdog",
+      "type": "addon",
+      "match": ["watchdog"],
+      "sha256": [],
+      "reason": "Allows for automating widescan."
+    },
+    {
+      "name": "cureplease_addon",
+      "type": "addon",
+      "match": ["cureplease_addon"],
+      "sha256": [],
+      "reason": "Bot addon that automates curing."
+    },
+    {
+      "name": "",
+      "type": "plugin",
+      "match": ["examplecheatplugin", "examplecheat.dll"],
+      "sha256": [],
+      "reason": "Sample entry — remove. Demonstrates ban-list schema."
+    }
+  ]
+}
