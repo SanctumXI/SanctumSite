@@ -102,7 +102,10 @@ async function getCharacterJobExp(charId) {
 }
 
 async function getAccountRecord(accountId) {
-  assertNeverExpose('accounts.password');
+  // Guard the fields we actually expose, not the forbidden one. Passing a
+  // NEVER_EXPOSE key here always throws; we only select id + login below.
+  assertNeverExpose('accounts.id');
+  assertNeverExpose('accounts.login');
 
   const rows = await query(
     `SELECT id, login
