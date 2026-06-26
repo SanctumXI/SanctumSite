@@ -30,36 +30,31 @@
       "name": "Balloon",
       "description": "Adds text balloons to all NPC messages.",
       "type": "addon",
-      "repo": "https://github.com/onimitch/ffxi-balloon-ashitav4",
-      "release": "irregular"
+      "repo": "https://github.com/onimitch/ffxi-balloon-ashitav4"
     },
     {
       "name": "ZoneLines",
       "description": "Adds in-game zone lines.",
       "type": "addon",
-      "repo": "https://github.com/SQLCommit/ZoneLines",
-      "release": "irregular"
+      "repo": "https://github.com/SQLCommit/ZoneLines"
     },
     {
       "name": "boussole",
       "description": "Adds a compass and minimap to the game.",
       "type": "addon",
-      "repo": "https://github.com/loonsies/boussole",
-      "release": "irregular"
+      "repo": "https://github.com/loonsies/boussole"
     },
     {
       "name": "FancyChat",
       "description": "A chat window replacement.",
       "type": "addon",
-      "repo": "https://github.com/ariel-logos/FancyChat",
-      "release": "irregular"
+      "repo": "https://github.com/ariel-logos/FancyChat"
     },
     {
       "name": "hticks",
       "description": "Adds a healing tick timer to the game.",
       "type": "addon",
-      "repo": "https://github.com/m4thmatic/hticks",
-      "release": "irregular"
+      "repo": "https://github.com/m4thmatic/hticks"
     },
     {
       "name": "RollTracker",
