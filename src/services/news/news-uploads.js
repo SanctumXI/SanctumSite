@@ -37,3 +37,20 @@ export function saveNewsImage(buffer, mime) {
   fs.writeFileSync(path.join(newsImagesDir, name), buffer);
   return `/uploads/news/${name}`;
 }
+
+// Replace any embedded base64 image (data: URI) in an HTML body with an uploaded
+// file URL. Runs server-side so images persist and the DB stays lean no matter
+// how the client embedded them (paste, drag, or direct base64). Unsupported
+// types are dropped to an empty src (the sanitizer then strips them).
+const DATA_URI = /data:(image\/[a-zA-Z0-9.+-]+);base64,([A-Za-z0-9+/=\s]+?)(?=["')\s])/g;
+
+export function externalizeDataImages(html) {
+  return String(html ?? '').replace(DATA_URI, (_match, mime, b64) => {
+    try {
+      const buffer = Buffer.from(b64.replace(/\s/g, ''), 'base64');
+      return saveNewsImage(buffer, mime.toLowerCase());
+    } catch {
+      return '';
+    }
+  });
+}

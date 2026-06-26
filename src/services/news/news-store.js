@@ -1,5 +1,6 @@
 import db from '../../config/news-db.js';
 import { htmlToText, sanitizeNewsHtml } from './sanitize-news.js';
+import { externalizeDataImages } from './news-uploads.js';
 
 const MAX_TITLE = 200;
 const MAX_BODY = 500000; // images are URLs now (uploaded), so bodies stay small
@@ -21,7 +22,10 @@ function mapRow(row) {
 
 function validate(title, rawBody) {
   const cleanTitle = String(title ?? '').trim().slice(0, MAX_TITLE);
-  const cleanBody = sanitizeNewsHtml(rawBody).slice(0, MAX_BODY);
+  // Convert any embedded base64 images to uploaded file URLs before sanitizing,
+  // so the stored body holds small URLs instead of megabytes of base64.
+  const withUrls = externalizeDataImages(rawBody);
+  const cleanBody = sanitizeNewsHtml(withUrls).slice(0, MAX_BODY);
 
   if (!cleanTitle) {
     const error = new Error('Title is required');
