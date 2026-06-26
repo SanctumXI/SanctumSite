@@ -17,6 +17,7 @@ import launcherDistributedRoutes from './routes/launcher-distributed.js';
 import searchRoutes from './routes/search.js';
 import marketRoutes from './routes/market.js';
 import newsRoutes from './routes/news.js';
+import { uploadsDir } from './services/news/news-uploads.js';
 import { securityHeaders } from './middleware/require-https.js';
 import { optionalAuthenticate } from './middleware/authenticate.js';
 
@@ -36,11 +37,15 @@ if (isProduction) {
   app.set('trust proxy', 1);
 }
 
-app.use(express.json());
+// Raised from the 100kb default so news posts with embedded/pasted images fit.
+app.use(express.json({ limit: '8mb' }));
 app.use(createSessionMiddleware());
 app.use(securityHeaders);
 app.use(optionalAuthenticate);
 app.use(express.static(publicDir));
+// User-uploaded news images. Cached (immutable, content-hashed names) — the
+// maxAge here overrides the global no-store so images aren't refetched each load.
+app.use('/uploads', express.static(uploadsDir, { maxAge: '7d', immutable: true }));
 
 app.get('/', (_req, res) => {
   res.sendFile(indexHtml);
@@ -66,6 +71,14 @@ app.use('/api/market', marketRoutes);
 app.use('/api/news', newsRoutes);
 
 app.use((error, _req, res, _next) => {
+  if (error.type === 'entity.too.large') {
+    res.status(413).json({ error: 'Content is too large. Shrink images or link them by URL.' });
+    return;
+  }
+  if (error.type === 'entity.parse.failed') {
+    res.status(400).json({ error: 'Malformed request body' });
+    return;
+  }
   console.error(error);
   res.status(500).json({ error: 'Internal server error' });
 });

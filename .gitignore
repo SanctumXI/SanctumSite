@@ -1,5 +1,9 @@
 node_modules/
 .env
 data/sessions/
+data/uploads/
+data/news.sqlite
+data/news.sqlite-shm
+data/news.sqlite-wal
 *.log
 .DS_Store

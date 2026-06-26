@@ -1,9 +1,27 @@
-import { Router } from 'express';
+import { Router, raw } from 'express';
 import { requireNewsAdmin } from '../middleware/require-news-admin.js';
 import { createNews, deleteNews, getNewsItem, listNews, updateNews } from '../services/news/news-store.js';
 import { mirrorNewsToDiscord } from '../services/news/news-webhook.js';
+import { saveNewsImage } from '../services/news/news-uploads.js';
 
 const router = Router();
+
+// Role-gated: upload an image, return its served URL. Raw image bytes in, so the
+// editor can replace pasted/dropped base64 with a lightweight same-origin URL.
+router.post('/uploads', requireNewsAdmin, raw({ type: 'image/*', limit: '8mb' }), (req, res) => {
+  try {
+    const mime = String(req.headers['content-type'] ?? '').split(';')[0].trim();
+    const url = saveNewsImage(req.body, mime);
+    res.status(201).json({ url });
+  } catch (error) {
+    if (error.code === 'INVALID_IMAGE') {
+      res.status(400).json({ error: error.message });
+      return;
+    }
+    console.error(error);
+    res.status(500).json({ error: 'Image upload failed' });
+  }
+});
 
 // Public: latest news for the home feed.
 router.get('/', async (req, res) => {

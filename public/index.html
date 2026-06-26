@@ -2438,14 +2438,61 @@
         modules: { toolbar: NEWS_TOOLBAR },
       });
 
-      // Images are inserted by URL — file embeds (base64) would be stripped by
-      // the server-side sanitizer, which only allows http/https image sources.
-      quill.getModule('toolbar').addHandler('image', () => {
-        const url = prompt('Image URL (https://…):');
-        if (!url) return;
+      // Images are uploaded to the server and embedded by URL (keeps the DB
+      // lean — base64 never gets stored). Covers the toolbar button plus
+      // pasted screenshots and drag-and-drop.
+      async function uploadImageFile(file) {
+        const res = await fetch('/api/news/uploads', {
+          method: 'POST',
+          headers: { 'Content-Type': file.type },
+          body: file,
+          credentials: 'same-origin',
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error ?? 'Image upload failed');
+        return data.url;
+      }
+
+      async function insertUploadedImage(file) {
         const range = quill.getSelection(true);
-        quill.insertEmbed(range.index, 'image', url, 'user');
-        quill.setSelection(range.index + 1);
+        // Placeholder keeps the caret position while the upload is in flight.
+        quill.insertText(range.index, '⏳', 'user');
+        try {
+          const url = await uploadImageFile(file);
+          quill.deleteText(range.index, 1, 'user');
+          quill.insertEmbed(range.index, 'image', url, 'user');
+          quill.setSelection(range.index + 1, 'silent');
+        } catch (error) {
+          quill.deleteText(range.index, 1, 'user');
+          errorEl.textContent = error.message ?? 'Image upload failed.';
+          errorEl.hidden = false;
+        }
+      }
+
+      quill.getModule('toolbar').addHandler('image', () => {
+        const picker = document.createElement('input');
+        picker.type = 'file';
+        picker.accept = 'image/png,image/jpeg,image/gif,image/webp';
+        picker.onchange = () => {
+          const file = picker.files?.[0];
+          if (file) insertUploadedImage(file);
+        };
+        picker.click();
+      });
+
+      function handleImageDataTransfer(event, transfer) {
+        const files = [...(transfer?.files ?? [])].filter((f) => f.type.startsWith('image/'));
+        if (!files.length) return false;
+        event.preventDefault();
+        files.forEach((file) => insertUploadedImage(file));
+        return true;
+      }
+
+      quill.root.addEventListener('paste', (event) => {
+        handleImageDataTransfer(event, event.clipboardData);
+      });
+      quill.root.addEventListener('drop', (event) => {
+        handleImageDataTransfer(event, event.dataTransfer);
       });
 
       if (existing) {

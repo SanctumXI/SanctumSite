@@ -30,6 +30,9 @@ const SANITIZE_OPTIONS = {
   // Links: only safe schemes, and force external links to open safely.
   allowedSchemes: ['http', 'https', 'mailto'],
   allowedSchemesByTag: {
+    // Images are http/https only (incl. our same-origin /uploads/... URLs).
+    // Pasted/dropped base64 is intercepted client-side and uploaded instead,
+    // so it never reaches storage — keeps the DB lean.
     img: ['http', 'https'],
   },
   transformTags: {

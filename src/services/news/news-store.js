@@ -2,7 +2,7 @@ import db from '../../config/news-db.js';
 import { htmlToText, sanitizeNewsHtml } from './sanitize-news.js';
 
 const MAX_TITLE = 200;
-const MAX_BODY = 100000; // sanitized HTML can be large; SQLite handles it fine
+const MAX_BODY = 500000; // images are URLs now (uploaded), so bodies stay small
 
 function mapRow(row) {
   if (!row) {
@@ -28,8 +28,9 @@ function validate(title, rawBody) {
     error.code = 'INVALID_NEWS';
     throw error;
   }
-  // Reject bodies that are visually empty after sanitization (e.g. "<p><br></p>").
-  if (!htmlToText(cleanBody)) {
+  // Reject bodies that are visually empty after sanitization (e.g. "<p><br></p>"),
+  // but an image-only post still counts as content.
+  if (!htmlToText(cleanBody) && !/<img\b/i.test(cleanBody)) {
     const error = new Error('Body is required');
     error.code = 'INVALID_NEWS';
     throw error;
