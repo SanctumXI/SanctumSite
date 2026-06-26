@@ -1297,7 +1297,78 @@
       gap: 0.6rem;
       flex-wrap: wrap;
     }
+
+    /* Render stored Quill HTML on the dark feed. The ql-editor wrapper lets
+       Quill's size/font/align classes resolve; we strip its editor padding. */
+    .news-card-body.ql-editor {
+      padding: 0;
+      min-height: 0;
+      color: var(--text);
+      font-family: inherit;
+    }
+
+    .news-card-body.ql-editor img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 6px;
+    }
+
+    .news-card-body.ql-editor a {
+      color: var(--accent);
+    }
+
+    /* Dark-theme overrides for the Quill editor so WYSIWYG matches the feed. */
+    .news-editor-wrap .ql-toolbar.ql-snow,
+    .news-editor-wrap .ql-container.ql-snow {
+      border-color: var(--border);
+    }
+
+    .news-editor-wrap .ql-toolbar.ql-snow {
+      background: rgba(0, 0, 0, 0.18);
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+    }
+
+    .news-editor-wrap .ql-container.ql-snow {
+      border-bottom-left-radius: 8px;
+      border-bottom-right-radius: 8px;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .news-editor-wrap .ql-editor {
+      min-height: 280px;
+      color: var(--text);
+      font-family: inherit;
+    }
+
+    .news-editor-wrap .ql-editor.ql-blank::before {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .news-editor-wrap .ql-snow .ql-stroke { stroke: var(--muted); }
+    .news-editor-wrap .ql-snow .ql-fill { fill: var(--muted); }
+    .news-editor-wrap .ql-snow .ql-picker { color: var(--muted); }
+    .news-editor-wrap .ql-snow.ql-toolbar button:hover .ql-stroke,
+    .news-editor-wrap .ql-snow .ql-toolbar button:hover .ql-stroke,
+    .news-editor-wrap .ql-snow.ql-toolbar button.ql-active .ql-stroke {
+      stroke: var(--accent);
+    }
+    .news-editor-wrap .ql-snow.ql-toolbar button:hover .ql-fill,
+    .news-editor-wrap .ql-snow.ql-toolbar button.ql-active .ql-fill {
+      fill: var(--accent);
+    }
+    .news-editor-wrap .ql-snow .ql-picker-options {
+      background: var(--panel);
+      border-color: var(--border);
+    }
+    .news-editor-wrap .ql-snow .ql-picker.ql-expanded .ql-picker-label {
+      color: var(--text);
+      border-color: var(--border);
+    }
   </style>
+  <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 </head>
 <body>
   <header>
@@ -2143,6 +2214,20 @@
       }
     }
 
+    // Quill toolbar: fonts, sizes, colors, headings, formatting, lists, align,
+    // blockquote/code, links + images (by URL), and clear-formatting.
+    const NEWS_TOOLBAR = [
+      [{ font: [] }, { size: ['small', false, 'large', 'huge'] }],
+      [{ header: [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ color: [] }, { background: [] }],
+      [{ list: 'ordered' }, { list: 'bullet' }],
+      [{ indent: '-1' }, { indent: '+1' }, { align: [] }],
+      ['blockquote', 'code-block'],
+      ['link', 'image'],
+      ['clean'],
+    ];
+
     function formatNewsDate(value) {
       const date = new Date(value);
       if (Number.isNaN(date.getTime())) {
@@ -2152,11 +2237,6 @@
         year: 'numeric', month: 'short', day: 'numeric',
         hour: 'numeric', minute: '2-digit',
       });
-    }
-
-    function newsBodyHtml(body) {
-      // Stored as plain text; escape then preserve line breaks via CSS pre-wrap.
-      return escapeHtml(body);
     }
 
     function renderNewsCard(item, { linkTitle = true } = {}) {
@@ -2172,7 +2252,7 @@
         <article class="news-card">
           <h3 class="news-card-title">${title}</h3>
           <div class="news-card-meta">${meta}</div>
-          <div class="news-card-body">${newsBodyHtml(item.body)}</div>
+          <div class="news-card-body ql-editor">${item.body}</div>
         </article>
       `;
     }
@@ -2324,8 +2404,8 @@
             <input id="news-title" name="title" type="text" maxlength="200" required value="${existing ? escapeHtml(existing.title) : ''}" />
           </div>
           <div>
-            <label for="news-body">Body</label>
-            <textarea id="news-body" name="body" maxlength="8000" required>${existing ? escapeHtml(existing.body) : ''}</textarea>
+            <label>Body</label>
+            <div class="news-editor-wrap"><div id="news-editor"></div></div>
           </div>
           <div class="news-form-actions">
             <button type="submit" id="news-submit">${submitLabel}</button>
@@ -2345,9 +2425,44 @@
         }
       });
 
+      if (typeof Quill === 'undefined') {
+        errorEl.textContent = 'Editor failed to load (CDN blocked?). Refresh and try again.';
+        errorEl.hidden = false;
+        submitBtn.disabled = true;
+        return;
+      }
+
+      const quill = new Quill('#news-editor', {
+        theme: 'snow',
+        placeholder: 'Write the news post…',
+        modules: { toolbar: NEWS_TOOLBAR },
+      });
+
+      // Images are inserted by URL — file embeds (base64) would be stripped by
+      // the server-side sanitizer, which only allows http/https image sources.
+      quill.getModule('toolbar').addHandler('image', () => {
+        const url = prompt('Image URL (https://…):');
+        if (!url) return;
+        const range = quill.getSelection(true);
+        quill.insertEmbed(range.index, 'image', url, 'user');
+        quill.setSelection(range.index + 1);
+      });
+
+      if (existing) {
+        quill.clipboard.dangerouslyPasteHTML(existing.body);
+      }
+
       formEl.addEventListener('submit', async (event) => {
         event.preventDefault();
         errorEl.hidden = true;
+
+        const html = quill.root.innerHTML;
+        if (!quill.getText().trim() && !/<img/i.test(html)) {
+          errorEl.textContent = 'Body is required.';
+          errorEl.hidden = false;
+          return;
+        }
+
         submitBtn.disabled = true;
         submitBtn.textContent = existing ? 'Saving…' : 'Publishing…';
 
@@ -2358,7 +2473,7 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               title: formEl.title.value,
-              body: formEl.body.value,
+              body: html,
             }),
           });
           navigateTo(new URLSearchParams({ view: 'news', id: item.id }));

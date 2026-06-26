@@ -1,4 +1,5 @@
 import { getAppUrl, getNewsConfig } from '../../config/auth.js';
+import { htmlToText } from './sanitize-news.js';
 
 // Mirror a freshly posted news item to the configured Discord webhook.
 // No-op (returns false) when no webhook URL is set. Never throws — a webhook
@@ -10,9 +11,9 @@ export async function mirrorNewsToDiscord(newsItem) {
   }
 
   const url = `${getAppUrl()}/?view=news&id=${newsItem.id}`;
-  const description = newsItem.body.length > 4000
-    ? `${newsItem.body.slice(0, 3997)}...`
-    : newsItem.body;
+  // Body is sanitized HTML; Discord embeds want plain text.
+  const text = htmlToText(newsItem.body);
+  const description = text.length > 4000 ? `${text.slice(0, 3997)}...` : text;
 
   const payload = {
     embeds: [
