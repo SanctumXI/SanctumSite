@@ -65,3 +65,20 @@ ALTER TABLE site_launcher_refresh_tokens
 ALTER TABLE site_launcher_refresh_tokens
   ADD UNIQUE INDEX IF NOT EXISTS uk_site_launcher_refresh_hash (token_hash),
   ADD INDEX IF NOT EXISTS idx_site_launcher_refresh_discord (discord_id);
+
+-- ---------------------------------------------------------------------------
+-- site_news  (home-page news feed; posts gated by Discord role)
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS site_news (
+  id int(10) unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+ALTER TABLE site_news
+  ADD COLUMN IF NOT EXISTS title VARCHAR(200) NOT NULL DEFAULT '' AFTER id,
+  ADD COLUMN IF NOT EXISTS body TEXT NOT NULL AFTER title,
+  ADD COLUMN IF NOT EXISTS author_discord_id VARCHAR(32) NOT NULL DEFAULT '' AFTER body,
+  ADD COLUMN IF NOT EXISTS author_name VARCHAR(128) NULL AFTER author_discord_id,
+  ADD COLUMN IF NOT EXISTS published_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER author_name;
+
+ALTER TABLE site_news
+  ADD INDEX IF NOT EXISTS idx_site_news_published (published_at DESC);

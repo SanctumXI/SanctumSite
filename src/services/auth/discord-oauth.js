@@ -122,6 +122,27 @@ export async function fetchDiscordUser(accessToken) {
   return data;
 }
 
+// Fetch the signed-in user's membership (incl. roles) in one guild.
+// Requires the guilds.members.read scope on the access token.
+// Returns null when the user is not in the guild (Discord 404) or the token
+// lacks the scope; throws only on unexpected/transient errors.
+export async function fetchGuildMember(accessToken, guildId) {
+  const response = await fetch(`${DISCORD_API}/users/@me/guilds/${guildId}/member`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+
+  if (response.status === 404) {
+    return null;
+  }
+
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message ?? 'Discord guild member lookup failed');
+  }
+
+  return data;
+}
+
 export function toSessionUser(discordUser) {
   const avatarUrl = discordUser.avatar
     ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png?size=64`

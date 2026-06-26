@@ -1,13 +1,31 @@
 import { Router } from 'express';
-import { getAppUrl, isDiscordAuthConfigured } from '../config/auth.js';
+import { getAppUrl, getNewsConfig, isDiscordAuthConfigured } from '../config/auth.js';
 import {
   buildDiscordAuthorizeUrl,
   createOAuthState,
   exchangeDiscordCode,
   fetchDiscordUser,
+  fetchGuildMember,
   toSessionUser,
 } from '../services/auth/discord-oauth.js';
 import { upsertFromDiscord } from '../services/profile/profile-store.js';
+
+// Resolve whether this login may post site news, from their roles in our guild.
+// Failures (network, missing scope, not in guild) just mean "no" — never break login.
+async function resolveNewsAdmin(accessToken) {
+  const { guildId, roleId } = getNewsConfig();
+  if (!guildId || !roleId) {
+    return false;
+  }
+
+  try {
+    const member = await fetchGuildMember(accessToken, guildId);
+    return Boolean(member?.roles?.includes(roleId));
+  } catch (error) {
+    console.error('News role check failed:', error.message);
+    return false;
+  }
+}
 
 const router = Router();
 
@@ -59,6 +77,7 @@ router.get('/discord/callback', async (req, res) => {
     const token = await exchangeDiscordCode(String(code));
     const discordUser = await fetchDiscordUser(token.access_token);
     const sessionUser = toSessionUser(discordUser);
+    sessionUser.canManageNews = await resolveNewsAdmin(token.access_token);
     req.session.user = sessionUser;
     try {
       await upsertFromDiscord(sessionUser);

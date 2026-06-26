@@ -1193,6 +1193,110 @@
       padding: 0.55rem 0.9rem;
       font-size: 0.9rem;
     }
+
+    .home-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.25rem;
+    }
+
+    .home-head h2 {
+      margin: 0;
+      font-size: 1.6rem;
+      letter-spacing: 0.03em;
+    }
+
+    .news-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      max-width: 820px;
+    }
+
+    .news-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem clamp(1.1rem, 3vw, 1.6rem);
+    }
+
+    .news-card-title {
+      margin: 0 0 0.35rem;
+      font-size: 1.25rem;
+      color: var(--text);
+    }
+
+    a.news-card-title-link {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    a.news-card-title-link:hover {
+      color: var(--accent);
+    }
+
+    .news-card-meta {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .news-card-body {
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .news-empty {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .news-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      max-width: 720px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem clamp(1.25rem, 4vw, 2rem);
+    }
+
+    .news-form label {
+      display: block;
+      font-size: 0.82rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.4rem;
+    }
+
+    .news-form input[type="text"],
+    .news-form textarea {
+      width: 100%;
+      padding: 0.7rem 0.85rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: rgba(0, 0, 0, 0.2);
+      color: var(--text);
+      font: inherit;
+    }
+
+    .news-form textarea {
+      min-height: 220px;
+      resize: vertical;
+      line-height: 1.55;
+    }
+
+    .news-form-actions {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
   </style>
 </head>
 <body>
@@ -1313,6 +1417,14 @@
         });
       }
 
+      const newsNewBtn = profileMenu.querySelector('[data-action="news-new"]');
+      if (newsNewBtn) {
+        newsNewBtn.addEventListener('click', () => {
+          closeProfileMenu();
+          navigateTo(new URLSearchParams({ view: 'news-new' }));
+        });
+      }
+
       const logoutBtn = profileMenu.querySelector('[data-action="logout"]');
       if (logoutBtn) {
         logoutBtn.addEventListener('click', async () => {
@@ -1341,6 +1453,7 @@
             <div class="profile-menu-meta">@${escapeHtml(authState.user.username)}</div>
           </div>
           <button class="profile-menu-item" type="button" data-action="profile">View profile</button>
+          ${authState.user.canManageNews ? '<button class="profile-menu-item" type="button" data-action="news-new">Post news</button>' : ''}
           <button class="profile-menu-item danger" type="button" data-action="logout">Log out</button>
         `;
         return;
@@ -2030,17 +2143,251 @@
       }
     }
 
-    function renderHome(authMessage = '') {
+    function formatNewsDate(value) {
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) {
+        return '';
+      }
+      return date.toLocaleString('en-US', {
+        year: 'numeric', month: 'short', day: 'numeric',
+        hour: 'numeric', minute: '2-digit',
+      });
+    }
+
+    function newsBodyHtml(body) {
+      // Stored as plain text; escape then preserve line breaks via CSS pre-wrap.
+      return escapeHtml(body);
+    }
+
+    function renderNewsCard(item, { linkTitle = true } = {}) {
+      const meta = [item.authorName ? escapeHtml(item.authorName) : null, formatNewsDate(item.publishedAt)]
+        .filter(Boolean)
+        .join(' · ');
+      const titleInner = escapeHtml(item.title);
+      const title = linkTitle
+        ? `<a class="news-card-title-link" href="/?view=news&id=${item.id}" data-news-id="${item.id}">${titleInner}</a>`
+        : titleInner;
+
+      return `
+        <article class="news-card">
+          <h3 class="news-card-title">${title}</h3>
+          <div class="news-card-meta">${meta}</div>
+          <div class="news-card-body">${newsBodyHtml(item.body)}</div>
+        </article>
+      `;
+    }
+
+    function bindNewsLinks(root) {
+      root.querySelectorAll('[data-news-id]').forEach((link) => {
+        link.addEventListener('click', (event) => {
+          event.preventDefault();
+          navigateTo(new URLSearchParams({ view: 'news', id: link.dataset.newsId }));
+        });
+      });
+    }
+
+    async function renderHome(authMessage = '') {
       status.hidden = true;
+      input.value = '';
+
+      const canPost = Boolean(authState.user?.canManageNews);
+      const postButton = canPost
+        ? '<button type="button" id="news-post-btn">Post News</button>'
+        : '';
+
       content.innerHTML = `
-        <div class="home-panel">
-          <h2>SanctumXI</h2>
-          <p>Welcome to the placeholder home page for the SanctumXI private server.</p>
-          <p class="muted">More site features are coming soon. Use the wiki search in the top-right to browse retail FFXI reference content, or sign in with Discord when account features are enabled.</p>
-          ${authMessage}
+        <div class="home-head">
+          <h2>SanctumXI News</h2>
+          ${postButton}
+        </div>
+        ${authMessage}
+        <div class="news-feed" id="news-feed">
+          <p class="news-empty">Loading news…</p>
         </div>
       `;
+
+      const postBtn = content.querySelector('#news-post-btn');
+      if (postBtn) {
+        postBtn.addEventListener('click', () => {
+          navigateTo(new URLSearchParams({ view: 'news-new' }));
+        });
+      }
+
+      const feed = content.querySelector('#news-feed');
+      try {
+        const { items } = await fetchJson('/api/news');
+        if (!items.length) {
+          feed.innerHTML = '<p class="news-empty">No news yet. Check back soon.</p>';
+          return;
+        }
+        feed.innerHTML = items.map((item) => renderNewsCard(item)).join('');
+        bindNewsLinks(feed);
+      } catch (error) {
+        feed.innerHTML = '<p class="news-empty">Could not load news right now.</p>';
+      }
+    }
+
+    async function renderNewsItemPage() {
+      status.hidden = true;
       input.value = '';
+      const id = new URLSearchParams(window.location.search).get('id');
+
+      content.innerHTML = '<div class="news-feed"><p class="news-empty">Loading…</p></div>';
+      try {
+        const { item } = await fetchJson(`/api/news/${encodeURIComponent(id)}`);
+        const adminButtons = authState.user?.canManageNews
+          ? `<button class="btn-secondary" type="button" id="news-edit-btn">Edit</button>
+             <button class="btn-secondary" type="button" id="news-delete-btn">Delete</button>`
+          : '';
+        content.innerHTML = `
+          <div class="home-head">
+            <h2>News</h2>
+            <div class="news-form-actions">
+              <button class="btn-secondary" type="button" id="news-back-btn">Back to feed</button>
+              ${adminButtons}
+            </div>
+          </div>
+          <div class="news-feed">${renderNewsCard(item, { linkTitle: false })}</div>
+        `;
+        content.querySelector('#news-back-btn').addEventListener('click', () => {
+          navigateTo(new URLSearchParams());
+        });
+
+        const editBtn = content.querySelector('#news-edit-btn');
+        if (editBtn) {
+          editBtn.addEventListener('click', () => {
+            navigateTo(new URLSearchParams({ view: 'news-edit', id: item.id }));
+          });
+        }
+
+        const deleteBtn = content.querySelector('#news-delete-btn');
+        if (deleteBtn) {
+          deleteBtn.addEventListener('click', async () => {
+            if (!confirm(`Delete "${item.title}"? This cannot be undone.`)) {
+              return;
+            }
+            deleteBtn.disabled = true;
+            deleteBtn.textContent = 'Deleting…';
+            try {
+              await fetchJson(`/api/news/${item.id}`, { method: 'DELETE' });
+              navigateTo(new URLSearchParams());
+            } catch (error) {
+              alert(error.message ?? 'Could not delete news.');
+              deleteBtn.disabled = false;
+              deleteBtn.textContent = 'Delete';
+            }
+          });
+        }
+      } catch (error) {
+        content.innerHTML = `
+          <div class="news-feed">
+            <p class="news-empty">That news item could not be found.</p>
+          </div>
+        `;
+      }
+    }
+
+    function renderNewsPermissionNotice(heading) {
+      const message = authState.user
+        ? 'You do not have permission to manage news.'
+        : 'Sign in with Discord to manage news.';
+      content.innerHTML = `
+        <div class="home-panel">
+          <h2>${heading}</h2>
+          <p class="muted">${message}</p>
+        </div>
+      `;
+    }
+
+    // existing = null → create (POST). existing = item → edit (PATCH /:id).
+    function renderNewsFormPage(existing = null) {
+      status.hidden = true;
+      input.value = '';
+
+      if (!authState.user || !authState.user.canManageNews) {
+        renderNewsPermissionNotice(existing ? 'Edit News' : 'Post News');
+        return;
+      }
+
+      const heading = existing ? 'Edit News' : 'Post News';
+      const submitLabel = existing ? 'Save changes' : 'Publish';
+
+      content.innerHTML = `
+        <div class="home-head">
+          <h2>${heading}</h2>
+          <button class="btn-secondary" type="button" id="news-cancel-btn">Cancel</button>
+        </div>
+        <form class="news-form" id="news-form">
+          <div id="news-form-error" class="modal-error" hidden></div>
+          <div>
+            <label for="news-title">Title</label>
+            <input id="news-title" name="title" type="text" maxlength="200" required value="${existing ? escapeHtml(existing.title) : ''}" />
+          </div>
+          <div>
+            <label for="news-body">Body</label>
+            <textarea id="news-body" name="body" maxlength="8000" required>${existing ? escapeHtml(existing.body) : ''}</textarea>
+          </div>
+          <div class="news-form-actions">
+            <button type="submit" id="news-submit">${submitLabel}</button>
+          </div>
+        </form>
+      `;
+
+      const formEl = content.querySelector('#news-form');
+      const errorEl = content.querySelector('#news-form-error');
+      const submitBtn = content.querySelector('#news-submit');
+
+      content.querySelector('#news-cancel-btn').addEventListener('click', () => {
+        if (existing) {
+          navigateTo(new URLSearchParams({ view: 'news', id: existing.id }));
+        } else {
+          navigateTo(new URLSearchParams());
+        }
+      });
+
+      formEl.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        errorEl.hidden = true;
+        submitBtn.disabled = true;
+        submitBtn.textContent = existing ? 'Saving…' : 'Publishing…';
+
+        try {
+          const url = existing ? `/api/news/${existing.id}` : '/api/news';
+          const { item } = await fetchJson(url, {
+            method: existing ? 'PATCH' : 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: formEl.title.value,
+              body: formEl.body.value,
+            }),
+          });
+          navigateTo(new URLSearchParams({ view: 'news', id: item.id }));
+        } catch (error) {
+          errorEl.textContent = error.message ?? 'Could not save news.';
+          errorEl.hidden = false;
+          submitBtn.disabled = false;
+          submitBtn.textContent = submitLabel;
+        }
+      });
+    }
+
+    async function renderNewsEditPage() {
+      status.hidden = true;
+      input.value = '';
+
+      if (!authState.user || !authState.user.canManageNews) {
+        renderNewsPermissionNotice('Edit News');
+        return;
+      }
+
+      const id = new URLSearchParams(window.location.search).get('id');
+      content.innerHTML = '<div class="news-feed"><p class="news-empty">Loading…</p></div>';
+      try {
+        const { item } = await fetchJson(`/api/news/${encodeURIComponent(id)}`);
+        renderNewsFormPage(item);
+      } catch (error) {
+        content.innerHTML = '<div class="news-feed"><p class="news-empty">That news item could not be loaded.</p></div>';
+      }
     }
 
     function authNoticeFromParams(params) {
@@ -2563,12 +2910,27 @@
         return;
       }
 
+      if (params.get('view') === 'news' && params.get('id')) {
+        await renderNewsItemPage();
+        return;
+      }
+
+      if (params.get('view') === 'news-new') {
+        renderNewsFormPage();
+        return;
+      }
+
+      if (params.get('view') === 'news-edit' && params.get('id')) {
+        await renderNewsEditPage();
+        return;
+      }
+
       if (params.get('auth') === 'success') {
         await loadAuthState();
       }
 
       const authMessage = authNoticeFromParams(params);
-      renderHome(authMessage);
+      await renderHome(authMessage);
       clearAuthParams();
     }
 

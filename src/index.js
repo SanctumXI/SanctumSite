@@ -16,6 +16,7 @@ import launcherBanlistRoutes from './routes/launcher-banlist.js';
 import launcherDistributedRoutes from './routes/launcher-distributed.js';
 import searchRoutes from './routes/search.js';
 import marketRoutes from './routes/market.js';
+import newsRoutes from './routes/news.js';
 import { securityHeaders } from './middleware/require-https.js';
 import { optionalAuthenticate } from './middleware/authenticate.js';
 
@@ -62,6 +63,7 @@ const distributedRoute = process.env.LAUNCHER_DISTRIBUTED_ROUTE ?? '/api/launche
 app.use(distributedRoute, launcherDistributedRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/market', marketRoutes);
+app.use('/api/news', newsRoutes);
 
 app.use((error, _req, res, _next) => {
   console.error(error);

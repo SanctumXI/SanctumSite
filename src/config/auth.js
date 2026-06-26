@@ -11,7 +11,19 @@ export function getDiscordConfig() {
     clientId,
     clientSecret,
     redirectUri,
-    scopes: ['identify'],
+    // guilds.members.read lets us read the signed-in user's roles in our guild
+    // (needed to gate the news-admin page). identify covers basic profile.
+    scopes: ['identify', 'guilds.members.read'],
+  };
+}
+
+// Discord guild + role that may post site news, plus the mirror webhook.
+// All optional: if unset, news management is simply disabled (no one passes the gate).
+export function getNewsConfig() {
+  return {
+    guildId: process.env.DISCORD_NEWS_GUILD_ID?.trim() || '',
+    roleId: process.env.DISCORD_NEWS_ROLE_ID?.trim() || '',
+    webhookUrl: process.env.DISCORD_NEWS_WEBHOOK_URL?.trim() || '',
   };
 }
 
