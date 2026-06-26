@@ -8,7 +8,9 @@
     "start": "node src/index.js",
     "dev": "node --watch-path=src --watch-path=.env src/index.js",
     "zones:generate": "node scripts/generate-zones.js",
-    "missions:generate": "node scripts/generate-missions.js"
+    "missions:generate": "node scripts/generate-missions.js",
+    "deploy": "wrangler deploy",
+    "preview": "wrangler dev"
   },
   "engines": {
     "node": ">=20"
@@ -22,5 +24,8 @@
     "mariadb": "^3.4.0",
     "sanitize-html": "^2.17.5",
     "session-file-store": "^1.5.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.105.0"
   }
 }
