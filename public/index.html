@@ -5,6 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="referrer" content="no-referrer">
   <title>SanctumXI</title>
+  <script>
+    (() => {
+      let savedTheme = null;
+      try {
+        savedTheme = localStorage.getItem('sanctum-theme');
+      } catch {
+        // Storage may be unavailable in strict privacy modes.
+      }
+      document.documentElement.dataset.theme = savedTheme ?? 'light';
+    })();
+  </script>
   <style>
     :root {
       color-scheme: dark;
@@ -1368,12 +1379,24 @@
     }
   </style>
   <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+  <link href="/site.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 </head>
 <body>
-  <header>
+  <header class="site-header">
     <div class="header-row">
-      <h1><a href="/" id="home-link">SanctumXI</a></h1>
+      <h1 class="site-brand">
+        <a href="/" id="home-link">
+          <span class="brand-art-slot" aria-hidden="true"></span>
+          <span>SanctumXI</span>
+        </a>
+      </h1>
+      <nav class="primary-nav" aria-label="Primary navigation">
+        <a href="/?view=server-info" data-site-view="server-info">Server Info</a>
+        <a href="/?view=rules" data-site-view="rules">Rules</a>
+        <a href="/?view=tools" data-site-view="tools">Tools</a>
+        <a href="/?view=news-list" data-site-view="news-list">News</a>
+      </nav>
       <div class="header-tools">
         <div class="search-wrap">
           <form id="search-form">
@@ -1382,6 +1405,7 @@
           </form>
           <div id="search-suggestions" class="search-suggestions" hidden></div>
         </div>
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch color theme">Dark</button>
         <div class="auth-area" id="auth-area">
           <button
             class="profile-button"
@@ -1401,6 +1425,18 @@
     <div id="status" hidden></div>
     <div id="content"></div>
   </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="footer-copy">SanctumXI community portal</p>
+      <nav class="footer-nav" aria-label="Footer navigation">
+        <a href="/?view=server-info" data-site-view="server-info">Server Info</a>
+        <a href="/?view=rules" data-site-view="rules">Rules</a>
+        <a href="/?view=tools" data-site-view="tools">Tools</a>
+        <a href="/?view=news-list" data-site-view="news-list">News</a>
+      </nav>
+    </div>
+  </footer>
 
   <div id="link-modal" class="modal-overlay" hidden>
     <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="link-modal-title">
@@ -1427,11 +1463,60 @@
     const input = document.getElementById('search-input');
     const searchSuggestions = document.getElementById('search-suggestions');
     const searchWrap = document.querySelector('.search-wrap');
+    const themeToggle = document.getElementById('theme-toggle');
+    const homeLink = document.getElementById('home-link');
+    const siteViewLinks = [...document.querySelectorAll('[data-site-view]')];
 
-    let authState = { loading: true, configured: false, user: null };
+    let authState = { loading: true, configured: false, user: null, profile: null };
     let searchSuggestTimer = null;
     let searchSuggestRequest = 0;
     let profileMenuOpen = false;
+
+    function syncThemeToggle() {
+      const isDark = document.documentElement.dataset.theme === 'dark';
+      themeToggle.textContent = isDark ? 'Light' : 'Dark';
+      themeToggle.dataset.shortLabel = isDark ? 'Light' : 'Dark';
+      themeToggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+      themeToggle.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+    }
+
+    themeToggle.addEventListener('click', () => {
+      const nextTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = nextTheme;
+      try {
+        localStorage.setItem('sanctum-theme', nextTheme);
+      } catch {
+        // The theme still applies for this page when storage is unavailable.
+      }
+      syncThemeToggle();
+    });
+
+    homeLink.addEventListener('click', (event) => {
+      event.preventDefault();
+      navigateTo(new URLSearchParams());
+    });
+
+    siteViewLinks.forEach((link) => {
+      link.addEventListener('click', (event) => {
+        event.preventDefault();
+        navigateTo(new URLSearchParams({ view: link.dataset.siteView }));
+      });
+    });
+
+    function updateActiveNavigation(view) {
+      siteViewLinks.forEach((link) => {
+        const linkView = link.dataset.siteView;
+        const isNewsView = linkView === 'news-list' && ['news-list', 'news', 'news-new', 'news-edit'].includes(view);
+        const isActive = linkView === view || isNewsView;
+        if (isActive) {
+          link.setAttribute('aria-current', 'page');
+        } else {
+          link.removeAttribute('aria-current');
+        }
+      });
+    }
+
+    syncThemeToggle();
 
     function formatNumber(value) {
       if (value == null || Number.isNaN(Number(value))) {
@@ -1502,7 +1587,9 @@
           closeProfileMenu();
           await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
           authState.user = null;
+          authState.profile = null;
           renderAuthArea();
+          boot();
         });
       }
     }
@@ -1563,10 +1650,35 @@
       closeProfileMenu();
 
       if (authState.user) {
-        profileButton.innerHTML = `<img src="${authState.user.avatarUrl}" alt="" />`;
+        const game = authState.profile?.game;
+        const characterName = game?.linked && game.characterName && game.characterName !== '—'
+          ? game.characterName
+          : authState.user.globalName;
+        const accountMeta = game?.linked && game.jobLevel && game.jobLevel !== '—'
+          ? game.jobLevel
+          : `@${authState.user.username}`;
+        const avatar = authState.user.avatarUrl
+          ? `<img src="${escapeHtml(authState.user.avatarUrl)}" alt="" />`
+          : profileIconSvg;
+
+        profileButton.innerHTML = `
+          <span class="profile-button-avatar">${avatar}</span>
+          <span class="profile-button-copy">
+            <span class="profile-button-name">${escapeHtml(characterName)}</span>
+            <span class="profile-button-meta">${escapeHtml(accountMeta)}</span>
+          </span>
+          <span class="profile-button-chevron" aria-hidden="true">⌄</span>
+        `;
         profileButton.title = authState.user.globalName;
       } else {
-        profileButton.innerHTML = profileIconSvg;
+        profileButton.innerHTML = `
+          <span class="profile-button-avatar">${profileIconSvg}</span>
+          <span class="profile-button-copy">
+            <span class="profile-button-name">Account</span>
+            <span class="profile-button-meta">Sign in with Discord</span>
+          </span>
+          <span class="profile-button-chevron" aria-hidden="true">⌄</span>
+        `;
         profileButton.title = 'Account';
       }
 
@@ -1605,10 +1717,19 @@
       authState = { ...authState, loading: true };
       renderAuthArea();
       try {
-        authState = { ...(await fetchJson('/api/auth/me')), loading: false };
+        const nextAuth = await fetchJson('/api/auth/me');
+        let profile = null;
+        if (nextAuth.user) {
+          try {
+            profile = await fetchJson('/api/profile/me');
+          } catch (error) {
+            console.error('Profile summary check failed:', error);
+          }
+        }
+        authState = { ...nextAuth, profile, loading: false };
       } catch (error) {
         console.error('Auth status check failed:', error);
-        authState = { configured: false, user: null, unavailable: true, loading: false };
+        authState = { configured: false, user: null, profile: null, unavailable: true, loading: false };
       }
       renderAuthArea();
     }
@@ -2266,6 +2387,126 @@
       });
     }
 
+    function newsExcerpt(body, maxLength = 150) {
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = body ?? '';
+      const text = (wrapper.textContent ?? '').replace(/\s+/g, ' ').trim();
+      if (text.length <= maxLength) {
+        return text;
+      }
+      return `${text.slice(0, maxLength).trimEnd()}…`;
+    }
+
+    function renderHomeNewsRow(item) {
+      const excerpt = newsExcerpt(item.body) || 'Open this update to read more.';
+      return `
+        <article class="home-news-row">
+          <div class="news-art-placeholder" aria-label="Reserved news artwork area"></div>
+          <div class="home-news-copy">
+            <h3>
+              <a href="/?view=news&id=${item.id}" data-news-id="${item.id}">${escapeHtml(item.title)}</a>
+            </h3>
+            <div class="home-news-meta">${formatNewsDate(item.publishedAt)}</div>
+            <p class="home-news-excerpt">${escapeHtml(excerpt)}</p>
+          </div>
+          <a class="home-news-arrow" href="/?view=news&id=${item.id}" data-news-id="${item.id}" aria-label="Read ${escapeHtml(item.title)}">›</a>
+        </article>
+      `;
+    }
+
+    function renderHomeCharacterCard() {
+      if (!authState.user) {
+        const accountMessage = authState.configured
+          ? 'Sign in with Discord to see your linked character and game data here.'
+          : 'Discord sign-in is not configured on this server yet.';
+        const signIn = authState.configured
+          ? `<a class="button-link home-profile-button" href="/auth/discord?returnTo=${encodeURIComponent('/')}">Sign in with Discord</a>`
+          : '';
+
+        return `
+          <section class="home-character-card">
+            <div class="home-card-heading"><h2>Your Character</h2></div>
+            <div class="home-character-empty">
+              <p>${accountMessage}</p>
+              ${signIn}
+            </div>
+          </section>
+        `;
+      }
+
+      const game = authState.profile?.game;
+      const avatar = authState.user.avatarUrl
+        ? `<img src="${escapeHtml(authState.user.avatarUrl)}" alt="" />`
+        : profileIconSvg;
+
+      if (!game?.linked) {
+        return `
+          <section class="home-character-card">
+            <div class="home-card-heading"><h2>Your Character</h2></div>
+            <div class="home-character-body">
+              <div class="home-character-identity">
+                <div class="home-character-avatar">${avatar}</div>
+                <div>
+                  <h3 class="home-character-name">${escapeHtml(authState.user.globalName)}</h3>
+                  <div class="home-character-job">Discord account connected</div>
+                  <div class="home-character-location">No character linked yet</div>
+                </div>
+              </div>
+              <button class="btn-secondary button-link home-profile-button" type="button" data-go-view="profile">Link or view profile</button>
+            </div>
+          </section>
+        `;
+      }
+
+      const characterName = game.characterName && game.characterName !== '—'
+        ? game.characterName
+        : authState.user.globalName;
+
+      return `
+        <section class="home-character-card">
+          <div class="home-card-heading"><h2>Your Character</h2></div>
+          <div class="home-character-body">
+            <div class="home-character-identity">
+              <div class="home-character-avatar">${avatar}</div>
+              <div>
+                <h3 class="home-character-name">${escapeHtml(characterName)}</h3>
+                <div class="home-character-job">${escapeHtml(game.jobLevel)}</div>
+                <div class="home-character-location">${escapeHtml(game.nation)}</div>
+              </div>
+            </div>
+            <div class="home-character-stats">
+              <div class="home-character-stat">
+                <span class="home-character-stat-label">Character</span>
+                <span class="home-character-stat-value">${escapeHtml(characterName)}</span>
+              </div>
+              <div class="home-character-stat">
+                <span class="home-character-stat-label">Job</span>
+                <span class="home-character-stat-value">${escapeHtml(game.jobLevel)}</span>
+              </div>
+              <div class="home-character-stat">
+                <span class="home-character-stat-label">Nation</span>
+                <span class="home-character-stat-value">${escapeHtml(game.nation)}</span>
+              </div>
+              <div class="home-character-stat">
+                <span class="home-character-stat-label">Last Spotted</span>
+                <span class="home-character-stat-value">${escapeHtml(game.zone)}</span>
+              </div>
+            </div>
+            <button class="btn-secondary button-link home-profile-button" type="button" data-go-view="profile">View Full Profile</button>
+          </div>
+        </section>
+      `;
+    }
+
+    function bindViewButtons(root) {
+      root.querySelectorAll('[data-go-view]').forEach((control) => {
+        control.addEventListener('click', (event) => {
+          event.preventDefault();
+          navigateTo(new URLSearchParams({ view: control.dataset.goView }));
+        });
+      });
+    }
+
     async function renderHome(authMessage = '') {
       status.hidden = true;
       input.value = '';
@@ -2276,15 +2517,46 @@
         : '';
 
       content.innerHTML = `
-        <div class="home-head">
-          <h2>SanctumXI News</h2>
-          ${postButton}
-        </div>
-        ${authMessage}
-        <div class="news-feed" id="news-feed">
+        <div class="home-page">
+          ${authMessage}
+          <section class="home-hero">
+            <div class="home-hero-copy">
+              <p class="home-eyebrow">Welcome to SanctumXI</p>
+              <h2>Vanadiel, New and Improved</h2>
+              <p>A world you remember with new discoveries at every turn.</p>
+              <div class="home-hero-actions">
+                <a class="button-link" href="/?view=server-info" data-go-view="server-info">Begin Your Journey</a>
+                <a class="button-link button-link--secondary" href="/?view=tools" data-go-view="tools">Explore the Wiki</a>
+              </div>
+            </div>
+            <div class="hero-art-placeholder" aria-label="Reserved hero artwork area">Hero artwork area</div>
+          </section>
+          <div class="home-main-grid">
+            <section class="home-panel-card">
+              <div class="home-section-heading">
+                <h2>Latest News</h2>
+                ${postButton}
+              </div>
+              <div class="home-news-list" id="news-feed">
           <p class="news-empty">Loading news…</p>
+              </div>
+            </section>
+            <aside class="home-sidebar">
+              ${renderHomeCharacterCard()}
+              <section class="home-quick-card">
+                <div class="home-card-heading"><h3>Quick Links</h3></div>
+                <ul class="home-quick-list">
+                  <li><button class="home-quick-link" type="button" data-go-view="tools"><span>Download Launcher</span><span aria-hidden="true">›</span></button></li>
+                  <li><button class="home-quick-link" type="button" data-go-view="server-info"><span>New Player Guide</span><span aria-hidden="true">›</span></button></li>
+                  <li><button class="home-quick-link" type="button" data-go-view="server-info"><span>Server Status</span><span aria-hidden="true">›</span></button></li>
+                </ul>
+              </section>
+            </aside>
+          </div>
         </div>
       `;
+
+      bindViewButtons(content);
 
       const postBtn = content.querySelector('#news-post-btn');
       if (postBtn) {
@@ -2295,16 +2567,183 @@
 
       const feed = content.querySelector('#news-feed');
       try {
-        const { items } = await fetchJson('/api/news');
+        const { items } = await fetchJson('/api/news?limit=3');
         if (!items.length) {
-          feed.innerHTML = '<p class="news-empty">No news yet. Check back soon.</p>';
+          feed.innerHTML = '<p class="home-empty">No news yet. Check back soon.</p>';
           return;
         }
-        feed.innerHTML = items.map((item) => renderNewsCard(item)).join('');
+        feed.innerHTML = items.map((item) => renderHomeNewsRow(item)).join('');
         bindNewsLinks(feed);
       } catch (error) {
+        feed.innerHTML = '<p class="home-empty">Could not load news right now.</p>';
+      }
+    }
+
+    async function renderNewsIndexPage() {
+      status.hidden = true;
+      input.value = '';
+      const canPost = Boolean(authState.user?.canManageNews);
+      const postButton = canPost
+        ? '<button type="button" id="news-post-btn">Post News</button>'
+        : '';
+
+      content.innerHTML = `
+        <div class="news-index-page">
+          <div class="home-head">
+            <h2>News</h2>
+            ${postButton}
+          </div>
+          <div class="news-feed" id="news-index-feed">
+            <p class="news-empty">Loading…</p>
+          </div>
+        </div>
+      `;
+
+      content.querySelector('#news-post-btn')?.addEventListener('click', () => {
+        navigateTo(new URLSearchParams({ view: 'news-new' }));
+      });
+
+      const feed = content.querySelector('#news-index-feed');
+      try {
+        const { items } = await fetchJson('/api/news');
+        feed.innerHTML = items.length
+          ? items.map((item) => renderNewsCard(item)).join('')
+          : '<p class="news-empty">No news yet. Check back soon.</p>';
+        bindNewsLinks(feed);
+      } catch {
         feed.innerHTML = '<p class="news-empty">Could not load news right now.</p>';
       }
+    }
+
+    async function renderServerInfoPage() {
+      status.hidden = true;
+      input.value = '';
+      content.innerHTML = `
+        <div class="info-page">
+          <section class="info-page-hero">
+            <p class="home-eyebrow">Prepare for adventure</p>
+            <h2>Server Info</h2>
+            <p>Everything a new or returning player needs to get started on SanctumXI.</p>
+          </section>
+          <div class="info-card-grid">
+            <section class="info-card">
+              <h3>Getting Started</h3>
+              <ol>
+                <li>Create or sign in to your Discord account.</li>
+                <li>Download the launcher from the Tools page.</li>
+                <li>Link your character to unlock profile features.</li>
+              </ol>
+            </section>
+            <section class="info-card">
+              <h3>Server Status</h3>
+              <p id="server-health">Checking website services…</p>
+            </section>
+            <section class="info-card">
+              <h3>Server Details</h3>
+              <p>This area is reserved for your era, level cap, rates, available content, and connection details.</p>
+            </section>
+            <section class="info-card info-card--wide">
+              <h3>New Player Guide</h3>
+              <p>Add your preferred starting route, recommended first missions, travel unlocks, and community resources here.</p>
+            </section>
+            <section class="info-card">
+              <h3>Need Help?</h3>
+              <p>Use this area for your Discord invitation, support process, or contact information.</p>
+            </section>
+          </div>
+        </div>
+      `;
+
+      try {
+        const health = await fetchJson('/health');
+        content.querySelector('#server-health').textContent = health.database === 'connected'
+          ? 'Website services and the game database are available.'
+          : 'The website is online, but game data is currently unavailable.';
+      } catch {
+        content.querySelector('#server-health').textContent = 'Status could not be checked right now.';
+      }
+    }
+
+    function renderRulesPage() {
+      status.hidden = true;
+      input.value = '';
+      content.innerHTML = `
+        <div class="info-page">
+          <section class="info-page-hero">
+            <p class="home-eyebrow">Community first</p>
+            <h2>Rules</h2>
+            <p>A clear foundation for fair play, respectful communication, and a healthy long-term community.</p>
+          </section>
+          <div class="info-card-grid">
+            <section class="info-card">
+              <h3>Respect Other Players</h3>
+              <p>Harassment, hate speech, targeted abuse, and disruptive behavior are not welcome.</p>
+            </section>
+            <section class="info-card">
+              <h3>Play Fair</h3>
+              <p>Do not exploit bugs, automate prohibited gameplay, or use tools that create an unfair advantage.</p>
+            </section>
+            <section class="info-card">
+              <h3>Protect Accounts</h3>
+              <p>Keep account credentials private and report suspected compromise to staff promptly.</p>
+            </section>
+            <section class="info-card info-card--wide">
+              <h3>Staff and Enforcement</h3>
+              <p>Follow staff instructions during investigations. Appeals should use the private process designated by the server team rather than public disputes.</p>
+            </section>
+            <section class="info-card">
+              <h3>Final Rule Set</h3>
+              <p>Replace or expand this starter copy with the server’s complete policies before launch.</p>
+            </section>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderToolsPage() {
+      status.hidden = true;
+      input.value = '';
+      content.innerHTML = `
+        <div class="info-page">
+          <section class="info-page-hero">
+            <p class="home-eyebrow">Everything in one place</p>
+            <h2>Tools</h2>
+            <p>Search community knowledge, find player profiles, check item listings, and access server utilities.</p>
+          </section>
+          <div class="info-card-grid">
+            <section class="info-card info-card--wide">
+              <h3>Wiki and Player Search</h3>
+              <p>Search the aggregated wiki or look up a linked player by character name.</p>
+              <form class="tools-search-form" id="tools-search-form">
+                <input id="tools-search-input" type="search" placeholder="Search wiki or players…" aria-label="Search wiki or players" />
+                <button type="submit">Search</button>
+              </form>
+            </section>
+            <section class="info-card">
+              <h3>Launcher</h3>
+              <p>Add the official launcher download link and installation instructions here when the release package is ready.</p>
+            </section>
+            <section class="info-card">
+              <h3>Sanctum Market</h3>
+              <p>Search for an item in the wiki. When market data exists, the item page provides a direct Sanctum Market view.</p>
+            </section>
+            <section class="info-card">
+              <h3>Character Profiles</h3>
+              <p>Use the search above to find linked characters, or open your account menu to view your own profile.</p>
+            </section>
+          </div>
+        </div>
+      `;
+
+      const toolsForm = content.querySelector('#tools-search-form');
+      const toolsInput = content.querySelector('#tools-search-input');
+      toolsForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const q = toolsInput.value.trim();
+        if (q) {
+          navigateTo(new URLSearchParams({ q }));
+        }
+      });
     }
 
     async function renderNewsItemPage() {
@@ -2330,7 +2769,7 @@
           <div class="news-feed">${renderNewsCard(item, { linkTitle: false })}</div>
         `;
         content.querySelector('#news-back-btn').addEventListener('click', () => {
-          navigateTo(new URLSearchParams());
+          navigateTo(new URLSearchParams({ view: 'news-list' }));
         });
 
         const editBtn = content.querySelector('#news-edit-btn');
@@ -2350,7 +2789,7 @@
             deleteBtn.textContent = 'Deleting…';
             try {
               await fetchJson(`/api/news/${item.id}`, { method: 'DELETE' });
-              navigateTo(new URLSearchParams());
+              navigateTo(new URLSearchParams({ view: 'news-list' }));
             } catch (error) {
               alert(error.message ?? 'Could not delete news.');
               deleteBtn.disabled = false;
@@ -2421,7 +2860,7 @@
         if (existing) {
           navigateTo(new URLSearchParams({ view: 'news', id: existing.id }));
         } else {
-          navigateTo(new URLSearchParams());
+          navigateTo(new URLSearchParams({ view: 'news-list' }));
         }
       });
 
@@ -2809,7 +3248,8 @@
     }
 
     function navigateTo(params, replace = false) {
-      const url = `/?${params.toString()}`;
+      const query = params.toString();
+      const url = query ? `/?${query}` : '/';
       if (replace) {
         history.replaceState(null, '', url);
       } else {
@@ -3022,6 +3462,9 @@
       const title = params.get('title');
       const source = params.get('source') ?? 'bgwiki';
       const q = params.get('q');
+      const view = params.get('view') ?? 'home';
+
+      updateActiveNavigation(title || q ? 'tools' : view);
 
       if (title && params.get('view') === 'market') {
         await renderMarketPage(title, source);
@@ -3063,7 +3506,27 @@
         return;
       }
 
-      if (params.get('view') === 'profile') {
+      if (view === 'server-info') {
+        await renderServerInfoPage();
+        return;
+      }
+
+      if (view === 'rules') {
+        renderRulesPage();
+        return;
+      }
+
+      if (view === 'tools') {
+        renderToolsPage();
+        return;
+      }
+
+      if (view === 'news-list') {
+        await renderNewsIndexPage();
+        return;
+      }
+
+      if (view === 'profile') {
         if (params.get('auth') === 'success') {
           await loadAuthState();
         }
@@ -3072,17 +3535,17 @@
         return;
       }
 
-      if (params.get('view') === 'news' && params.get('id')) {
+      if (view === 'news' && params.get('id')) {
         await renderNewsItemPage();
         return;
       }
 
-      if (params.get('view') === 'news-new') {
+      if (view === 'news-new') {
         renderNewsFormPage();
         return;
       }
 
-      if (params.get('view') === 'news-edit' && params.get('id')) {
+      if (view === 'news-edit' && params.get('id')) {
         await renderNewsEditPage();
         return;
       }
